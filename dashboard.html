@@ -952,7 +952,9 @@
 (function() {
   'use strict';
 
-  const API_BASE = 'https://api.store.friendly-pharmacist.com';
+  const API_BASE = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+    ? 'https://api.store.friendly-pharmacist.com'
+    : '';
   const TOKEN_KEY = 'dashboard_bearer_token';
 
   let bearerToken = '';
