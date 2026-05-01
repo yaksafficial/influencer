@@ -1338,7 +1338,7 @@
 
   function getStepLabel(code) { return STEP_LABELS[code] || code || '-'; }
 
-  function isActiveStep(code) { return ['T4','T6'].includes(code); }
+  function isActiveStep(code) { return ['T4','T6','T8','Y0'].includes(code); }
 
   async function fetchPlans(limit, offset) {
     const l = limit || 100;
@@ -1567,9 +1567,9 @@
     let result = [...cachedPlans];
 
     if (currentFilter === 'active') {
-      result = result.filter(p => ['T4','T6'].includes(p.stepCode));
+      result = result.filter(p => ['T4','T6','T8','Y0'].includes(p.stepCode));
     } else if (currentFilter === 'completed') {
-      result = result.filter(p => ['T8','Y0','Y8'].includes(p.stepCode));
+      result = result.filter(p => ['Y8'].includes(p.stepCode));
     } else if (currentFilter === 'preparing') {
       result = result.filter(p => ['T0','T2'].includes(p.stepCode));
     }
