@@ -20,6 +20,7 @@ influencer/
 ├── study-admin.html          ← 스터디 관리자 대시보드
 ├── study-curriculum.html     ← 스터디 커리큘럼 안내 페이지
 ├── study-skills-practice.html← 스킬 실습 가이드 (수업 자료)
+├── dashboard.html            ← 공구 매출 대시보드 (API 직접 호출)
 ├── event-prompt.md           ← 당첨자폼 상세 스펙 (참조용)
 ├── CLAUDE.md                 ← 이 파일
 ├── PLAN.md                   ← 프로젝트 플랜
@@ -34,6 +35,7 @@ influencer/
 | `/공구캘린더` | 공동구매 캘린더(index.html) 생성/수정 |
 | `/당첨자폼` | 이벤트 당첨자 배송지 폼(event.html, event-admin.html) 생성/수정 |
 | `/커리큘럼` | AI 스터디 커리큘럼(study-curriculum.html) 생성/수정 |
+| `/공구대시보드` | 공구 매출 대시보드(dashboard.html) 수정 |
 | `/deploy` | Cloudflare Pages 배포 |
 | `/add-product` | 캘린더에 새 제품 매핑 추가 |
 | `/setup` | 프로젝트 설정 상태 점검 |
@@ -67,6 +69,13 @@ influencer/
 - 호스트 3명 + 게스트 6명 (최대 9명)
 - 오프라인 1시간 미팅 + 과제 수행 방식
 - 하단 CTA로 신청 폼(study.html) 연결
+
+### dashboard.html (공구 매출 대시보드)
+- 친한스토어 어드민 REST API 직접 호출 (Google Sheets 미사용)
+- Bearer JWT 토큰 인증 (Phase 1), 향후 ID/PW 로그인 전환 예정
+- 셀러 목록, 공구 플랜 상세, 상품/옵션/커미션 시각화
+- 통계 카드, CSS 바 차트, 정렬/검색/필터 테이블, 상세 모달
+- 엑셀/CSV 내보내기
 
 ## 스프레드시트 컬럼 구조 (A~H)
 | 컬럼 | 내용 |
