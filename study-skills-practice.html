@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI 스터디 — Claude Code 스킬 실습 가이드</title>
+<title>AI 스터디 — Claude Code 실습 가이드</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -522,8 +522,8 @@ html, body {
 
   <div class="hero">
     <div class="hero-badge"><span class="dot"></span>AI 스터디 실습 자료</div>
-    <h1>Claude Code 스킬 실습 가이드</h1>
-    <p>슬래시 명령어(스킬)를 활용하여<br>실제 프로젝트를 만들고 수정하는 실습 과정입니다.</p>
+    <h1>Claude Code 실습 가이드</h1>
+    <p>스크린캡처와 자연어로<br>실제 프로젝트를 만들고 수정하는 실습 과정입니다.</p>
     <p style="font-size:12px; color:#9A9A9A; margin-top:8px;">전체 소요 시간: 약 2~3시간</p>
   </div>
 
@@ -532,9 +532,9 @@ html, body {
     <ol>
       <li><a href="#prereq">사전 준비 — 환경 세팅</a> <span class="toc-time">20분</span></li>
       <li><a href="#overview">스킬 개요 — 사용 가능한 명령어</a> <span class="toc-time">5분</span></li>
-      <li><a href="#practice1">실습 1 — /공구캘린더 (캘린더 수정)</a> <span class="toc-time">20분</span></li>
-      <li><a href="#practice2">실습 2 — /공구대시보드 (매출 대시보드)</a> <span class="toc-time">30분</span></li>
-      <li><a href="#practice3">실습 3 — /당첨자폼 (이벤트 폼 커스터마이징)</a> <span class="toc-time">20분</span></li>
+      <li><a href="#practice1">실습 1 — 공구캘린더 (캘린더 수정)</a> <span class="toc-time">20분</span></li>
+      <li><a href="#practice2">실습 2 — 공구대시보드 (매출 대시보드)</a> <span class="toc-time">30분</span></li>
+      <li><a href="#practice3">실습 3 — 당첨자폼 (이벤트 폼 커스터마이징)</a> <span class="toc-time">20분</span></li>
       <li><a href="#practice4">실습 4 — /deploy (배포하기)</a> <span class="toc-time">10분</span></li>
       <li><a href="#challenge">도전 과제</a> <span class="toc-time">자유</span></li>
     </ol>
@@ -879,7 +879,7 @@ html, body {
   <!-- Section 2: 실습 1 -->
   <div class="section" id="practice1">
     <div class="section-number">2</div>
-    <h2>실습 1 — /공구캘린더</h2>
+    <h2>실습 1 — 공구캘린더</h2>
     <p class="section-desc">공동구매 캘린더의 디자인과 제품 매핑을 수정해 봅니다.</p>
 
     <div class="learn-outcome">
@@ -898,42 +898,42 @@ html, body {
 
     <div class="step-card">
       <div class="step-label">실습 1-A — 테마 색상 변경</div>
-      <p>Claude Code에서 아래와 같이 입력합니다:</p>
+      <p>브라우저에서 <code>http://localhost:8788</code>을 열고, 캘린더 화면을 <strong>스크린캡처</strong>합니다.</p>
+      <p style="margin-top:8px;">Claude Code에 캡처 이미지를 붙여넣고 자연어로 요청합니다:</p>
       <div class="code-block">
-        <span class="command">/공구캘린더</span><br>
-        <span class="comment"># Claude가 응답하면 다음과 같이 요청:</span><br>
-        캘린더 테마 색상을 파란색 계열로 변경해줘
+        <span class="comment"># 스크린캡처를 붙여넣은 후:</span><br>
+        이 캘린더의 테마 색상을 파란색 계열로 변경해줘
       </div>
-      <p style="margin-top:8px;">브라우저에서 <code>http://localhost:8788</code>을 새로고침하여 변경 사항을 확인합니다.</p>
+      <p style="margin-top:8px;">브라우저를 새로고침하여 변경 사항을 확인합니다.</p>
       <div class="tip"><strong>동작 원리:</strong> 캘린더의 모든 색상은 CSS 변수(<code>--accent</code>, <code>--accent-hex</code>)로 관리됩니다. Claude는 이 변수값만 변경하여 전체 테마를 일괄 적용합니다.</div>
     </div>
 
     <div class="step-card">
       <div class="step-label">실습 1-B — 제품 추가</div>
-      <p>새로운 제품 매핑을 추가해 봅니다:</p>
+      <p>캘린더에 표시되는 제품 목록 부분을 <strong>스크린캡처</strong>하여 Claude Code에 붙여넣고 요청합니다:</p>
       <div class="code-block">
-        <span class="command">/add-product</span><br>
-        <span class="comment"># Claude가 질문하면 아래 정보를 제공:</span><br>
-        - 타이틀 키워드: 콜라겐<br>
-        - 표시 이름: 피쉬 콜라겐<br>
-        - 설명: 먹는 피부관리 / 저분자 콜라겐<br>
-        - 배지: NEW
+        <span class="comment"># 캘린더 제품 영역 스크린캡처를 붙여넣은 후:</span><br>
+        여기에 "피쉬 콜라겐"이라는 제품을 추가해줘.<br>
+        타이틀에 "콜라겐"이 포함되면 매칭되게 하고,<br>
+        설명은 "먹는 피부관리 / 저분자 콜라겐", 배지는 NEW로 해줘
       </div>
       <div class="tip"><strong>매핑이란?</strong> 친한스토어 API의 "공구타이틀(<code>group_purchase_title</code>)"에 키워드(예: 콜라겐)가 포함되면, 캘린더에 지정한 제품명·설명·배지가 자동 표시됩니다. 캘린더와 대시보드는 동일한 REST API를 사용하며, 로그인 토큰도 공유합니다.</div>
     </div>
 
     <div class="step-card">
       <div class="step-label">실습 1-C — 자유 수정</div>
-      <p>본인만의 캘린더를 만들어 봅니다. 아래 예시 중 하나를 시도해 보세요:</p>
+      <p>수정하고 싶은 부분을 <strong>스크린캡처</strong>하여 Claude Code에 붙여넣고, 원하는 변경을 자연어로 설명합니다. 예시:</p>
       <div class="code-block">
-        <span class="command">/공구캘린더</span><br>
-        캘린더 헤더에 있는 핸들 이름을 내 인스타 아이디로 바꿔줘
+        <span class="comment"># 캘린더 헤더 부분을 캡처해서 붙여넣은 후:</span><br>
+        이 헤더에 있는 핸들 이름을 내 인스타 아이디(@myid)로 바꿔줘
       </div>
       <div class="code-block">
-        <span class="command">/공구캘린더</span><br>
-        캘린더 하단에 "문의: DM 주세요" 텍스트를 추가해줘
+        <span class="comment"># 캘린더 하단을 캡처해서 붙여넣은 후:</span><br>
+        여기 하단에 "문의: DM 주세요" 텍스트를 추가해줘
       </div>
     </div>
+
+    <div class="tip"><strong>스크린캡처 팁:</strong> Mac: <code>Cmd + Shift + 4</code>로 영역 캡처 → Claude Code에 <code>Cmd + V</code>로 붙여넣기. 전체 화면보다 수정하고 싶은 부분만 캡처하면 Claude가 더 정확하게 이해합니다.</div>
 
     <div class="tip"><strong>데이터 흐름:</strong> 캘린더는 대시보드와 동일한 친한스토어 REST API(<code>/api/admin/v1/group-purchases/plans</code>)를 호출합니다. 상태코드 T4(확정), T6(진행중), T8(진행완료), Y0(정산대기)인 공구만 필터링하여 표시합니다. 대시보드에서 먼저 로그인하면, 캘린더에서도 자동 인증됩니다(동일한 <code>dashboard_bearer_token</code> 공유).</div>
 
@@ -946,7 +946,7 @@ html, body {
   <!-- Section 3: 실습 2 — 공구대시보드 -->
   <div class="section" id="practice2">
     <div class="section-number">3</div>
-    <h2>실습 2 — /공구대시보드</h2>
+    <h2>실습 2 — 공구대시보드</h2>
     <p class="section-desc">친한스토어 어드민 API를 연동하여 공동구매 매출 대시보드를 수정합니다.</p>
 
     <div class="learn-outcome">
@@ -1022,11 +1022,11 @@ html, body {
 
     <div class="step-card">
       <div class="step-label">실습 2-B — Swagger로 API 스키마 확인</div>
-      <p>API 응답 구조를 Swagger에서 확인하는 방법을 실습합니다:</p>
+      <p>API 응답 구조를 Swagger에서 확인하는 방법을 실습합니다. Swagger 페이지를 <strong>스크린캡처</strong>하여 Claude Code에 붙여넣고 질문합니다:</p>
       <div class="code-block">
-        <span class="command">/공구대시보드</span><br>
-        Swagger API 문서를 참고하여 공구 상세 API의<br>
-        응답 필드를 확인하고, 매출 리포트 데이터 구조를 알려줘
+        <span class="comment"># Swagger 페이지 캡처를 붙여넣은 후:</span><br>
+        이 API의 응답 필드를 설명해줘.<br>
+        매출 리포트 데이터 구조는 어떻게 되어있어?
       </div>
       <div class="tip">
         <strong>Swagger URL:</strong> dev-api.store.friendly-pharmacist.com/swagger-ui/index.html 에서 API 스키마를 직접 확인할 수 있습니다. 각 API의 요청 파라미터, 응답 필드, HTTP 메서드를 한눈에 볼 수 있습니다.
@@ -1035,18 +1035,18 @@ html, body {
 
     <div class="step-card">
       <div class="step-label">실습 2-C — 대시보드 커스터마이징</div>
-      <p>대시보드의 차트나 테이블을 수정해 봅니다. 아래 예시 중 하나를 선택하세요:</p>
+      <p>대시보드에서 수정하고 싶은 영역을 <strong>스크린캡처</strong>하여 Claude Code에 붙여넣고 요청합니다:</p>
       <div class="code-block">
-        <span class="command">/공구대시보드</span><br>
-        매출 TOP 10 차트를 세로 바 차트로 변경해줘
+        <span class="comment"># 차트 영역 캡처를 붙여넣은 후:</span><br>
+        이 차트를 세로 바 차트로 변경해줘
       </div>
       <div class="code-block">
-        <span class="command">/공구대시보드</span><br>
-        테이블에 "주문수" 컬럼을 추가해줘
+        <span class="comment"># 테이블 영역 캡처를 붙여넣은 후:</span><br>
+        이 테이블에 "주문수" 컬럼을 추가해줘
       </div>
       <div class="code-block">
-        <span class="command">/공구대시보드</span><br>
-        통계 카드에 "이번 달 매출" 항목을 추가해줘
+        <span class="comment"># 통계 카드 영역 캡처를 붙여넣은 후:</span><br>
+        여기에 "이번 달 매출" 카드를 추가해줘
       </div>
     </div>
 
@@ -1063,7 +1063,7 @@ html, body {
   <!-- Section 4: 실습 3 — 당첨자폼 -->
   <div class="section" id="practice3">
     <div class="section-number">4</div>
-    <h2>실습 3 — /당첨자폼</h2>
+    <h2>실습 3 — 당첨자폼</h2>
     <p class="section-desc">이벤트 당첨자 배송지 입력 폼을 커스터마이징합니다.</p>
 
     <div class="learn-outcome">
@@ -1081,20 +1081,21 @@ html, body {
 
     <div class="step-card">
       <div class="step-label">실습 3-A — 제품 정보 변경</div>
-      <p>폼에 표시되는 제품 정보를 본인의 제품으로 바꿔봅니다:</p>
+      <p>브라우저에서 <code>http://localhost:8788/event</code>를 열고, 상품 카드 부분을 <strong>스크린캡처</strong>합니다.</p>
+      <p style="margin-top:8px;">Claude Code에 캡처를 붙여넣고 요청합니다:</p>
       <div class="code-block">
-        <span class="command">/당첨자폼</span><br>
-        상품 카드의 제품명을 "내 브랜드 비타민C 1000"으로 바꾸고,<br>
+        <span class="comment"># 상품 카드 캡처를 붙여넣은 후:</span><br>
+        이 상품 카드의 제품명을 "내 브랜드 비타민C 1000"으로 바꾸고,<br>
         판매가를 39,000원, 옵션을 "30일분 / 60일분"으로 변경해줘
       </div>
     </div>
 
     <div class="step-card">
       <div class="step-label">실습 3-B — 폼 필드 추가</div>
-      <p>새로운 입력 필드를 추가해 봅니다:</p>
+      <p>폼 입력 영역을 <strong>스크린캡처</strong>하여 Claude Code에 붙여넣고 요청합니다:</p>
       <div class="code-block">
-        <span class="command">/당첨자폼</span><br>
-        폼에 "구매 옵션" 선택 필드를 추가해줘.<br>
+        <span class="comment"># 폼 입력 영역 캡처를 붙여넣은 후:</span><br>
+        여기에 "구매 옵션" 선택 필드를 추가해줘.<br>
         옵션은 "3박스", "6박스" 두 가지로 드롭다운으로 만들어줘
       </div>
     </div>
@@ -1176,7 +1177,7 @@ html, body {
       <div class="step-label">도전 A — 매출 요약 알림 시스템 <span class="difficulty medium">보통</span></div>
       <p>대시보드에 공구별 매출 목표 대비 달성률을 계산하고, 목표 초과 시 시각적 알림을 표시하는 기능을 만들어 보세요.</p>
       <div class="code-block">
-        <span class="command">/공구대시보드</span><br>
+        <span class="comment"># 대시보드 테이블 영역 캡처를 붙여넣은 후:</span><br>
         각 공구에 매출 목표 금액을 설정할 수 있게 하고,<br>
         달성률이 100% 넘으면 테이블 행에 하이라이트 표시,<br>
         상단에 "목표 달성 공구 N개" 통계 카드도 추가해줘
@@ -1188,8 +1189,8 @@ html, body {
       <div class="step-label">도전 B — 캘린더 멀티뷰 (월간/주간 전환) <span class="difficulty medium">보통</span></div>
       <p>현재 월간 뷰만 있는 캘린더에 주간 뷰를 추가하고, 토글로 전환할 수 있게 만들어 보세요. 레이아웃과 데이터 필터링 로직을 모두 다뤄야 합니다.</p>
       <div class="code-block">
-        <span class="command">/공구캘린더</span><br>
-        캘린더에 "월간/주간" 전환 버튼을 추가하고,<br>
+        <span class="comment"># 캘린더 전체 화면 캡처를 붙여넣은 후:</span><br>
+        이 캘린더에 "월간/주간" 전환 버튼을 추가하고,<br>
         주간 뷰에서는 이번 주 공구만 카드형으로 크게 보여줘.<br>
         주간 뷰도 PNG 저장이 되어야 해.
       </div>
@@ -1200,8 +1201,8 @@ html, body {
       <div class="step-label">도전 C — 일별 매출 트렌드 차트 <span class="difficulty hard">어려움</span></div>
       <p>공구 상세 모달에서 일별 매출 데이터를 꺾은선 차트로 시각화해 보세요. API의 <code>group_purchase_plan_report_sale_day</code> 데이터를 파싱하고 Chart.js 라인 차트로 렌더링합니다.</p>
       <div class="code-block">
-        <span class="command">/공구대시보드</span><br>
-        공구 상세 모달에 일별 매출 추이 꺾은선 차트를 추가해줘.<br>
+        <span class="comment"># 공구 상세 모달 캡처를 붙여넣은 후:</span><br>
+        이 모달에 일별 매출 추이 꺾은선 차트를 추가해줘.<br>
         X축은 날짜, Y축은 주문금액.<br>
         주문이 급증한 날은 포인트를 강조해줘.
       </div>
@@ -1212,8 +1213,8 @@ html, body {
       <div class="step-label">도전 D — 공구 비교 분석 기능 <span class="difficulty hard">어려움</span></div>
       <p>두 개 이상의 공구를 선택하여 매출, 주문수, 기간 등을 나란히 비교하는 기능을 만들어 보세요. 체크박스 선택 → 비교 패널 렌더링까지 전체 흐름을 구현합니다.</p>
       <div class="code-block">
-        <span class="command">/공구대시보드</span><br>
-        테이블에 체크박스를 추가하고, 2~3개 공구를 선택하면<br>
+        <span class="comment"># 대시보드 테이블 캡처를 붙여넣은 후:</span><br>
+        이 테이블에 체크박스를 추가하고, 2~3개 공구를 선택하면<br>
         "비교" 버튼이 활성화되어 매출/주문수/기간을<br>
         나란히 비교하는 모달이 뜨게 만들어줘. 차트도 포함.
       </div>
@@ -1245,7 +1246,7 @@ html, body {
   </div>
 
   <div class="footer">
-    <p>AI 스터디 — Claude Code 스킬 실습 가이드</p>
+    <p>AI 스터디 — Claude Code 실습 가이드</p>
     <p><a href="study-curriculum">커리큘럼 보기</a> · <a href="dashboard">매출 대시보드</a> · <a href="study">스터디 신청</a></p>
   </div>
 
