@@ -919,6 +919,20 @@
     }
     .sidebar-divider { height: 1px; background: #1f2530; margin: 10px 0; }
     .sidebar-footer { margin-top: auto; padding: 12px 0 18px; border-top: 1px solid #1f2530; }
+    .sidebar-toggle {
+      display: inline-block; width: 30px; height: 16px;
+      margin-left: auto; flex-shrink: 0;
+      background: #30363d; border-radius: 8px;
+      position: relative; transition: background 0.18s ease;
+    }
+    .sidebar-toggle::after {
+      content: ''; position: absolute; top: 2px; left: 2px;
+      width: 12px; height: 12px; background: #c9d1d9;
+      border-radius: 50%;
+      transition: left 0.18s ease, background 0.18s ease;
+    }
+    .sidebar-toggle.on { background: var(--teal); }
+    .sidebar-toggle.on::after { left: 16px; background: #fff; }
     .dash-main { flex: 1; min-width: 0; }
 
     /* View containers */
@@ -1131,8 +1145,10 @@
       </a>
 
       <div class="sidebar-footer">
-        <a class="sidebar-item" href="#" onclick="event.preventDefault(); document.getElementById('mask-btn').click();">
-          <span class="icon">🪙</span><span id="sidebar-mask-label">금액 보기</span>
+        <a class="sidebar-item" href="#" onclick="event.preventDefault(); toggleMask();">
+          <span class="icon">🪙</span>
+          <span>금액 표시</span>
+          <span class="sidebar-toggle" id="sidebar-mask-toggle"></span>
         </a>
         <a class="sidebar-item" href="#" onclick="event.preventDefault(); disconnectToken();">
           <span class="icon">🚪</span><span>로그아웃</span>
@@ -1389,10 +1405,9 @@
 
   window.toggleMask = function() {
     moneyMasked = !moneyMasked;
-    const maskLabel = moneyMasked ? '금액 보기' : '금액 숨기기';
-    document.getElementById('mask-btn').textContent = maskLabel;
-    const sidebarMaskEl = document.getElementById('sidebar-mask-label');
-    if (sidebarMaskEl) sidebarMaskEl.textContent = maskLabel;
+    document.getElementById('mask-btn').textContent = moneyMasked ? '금액 보기' : '금액 숨기기';
+    const toggleEl = document.getElementById('sidebar-mask-toggle');
+    if (toggleEl) toggleEl.classList.toggle('on', !moneyMasked);
     renderStats();
     renderTable();
     renderPlanChartJS();
