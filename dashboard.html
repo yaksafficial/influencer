@@ -2258,7 +2258,7 @@
     wrap.innerHTML = '<div class="ig-grid">' + posts.slice(0, 30).map(p => {
       const date = p.timestamp ? new Date(p.timestamp).toISOString().slice(0, 10) : '';
       const type = p.type === 'Video' ? '🎬 비디오' :
-                   p.type === 'Sidecar' ? '🖼️ 다중' :
+                   p.type === 'Sidecar' ? '🖼️ 캐러셀' :
                    p.type === 'Image' ? '📷 이미지' :
                    p.productType === 'clips' ? '🎞️ 릴스' : '';
       const url = p.url || (p.shortCode ? 'https://www.instagram.com/p/' + p.shortCode + '/' : '#');

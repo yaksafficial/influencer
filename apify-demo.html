@@ -363,7 +363,7 @@ const posts = await res.json();
       const caption = (p.caption || '').slice(0, 120);
       const date = p.timestamp ? new Date(p.timestamp).toISOString().slice(0, 10) : '';
       const type = p.type === 'Video' ? '🎬 비디오' :
-                   p.type === 'Sidecar' ? '🖼️ 다중' :
+                   p.type === 'Sidecar' ? '🖼️ 캐러셀' :
                    p.type === 'Image' ? '📷 이미지' :
                    p.productType === 'clips' ? '🎞️ 릴스' : '';
       const thumb = pickThumb(p);
