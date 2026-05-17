@@ -1915,9 +1915,29 @@
         </div>
       </section>
       <section class="view" id="view-customers">
-        <div class="view-placeholder">
-          <h2>팔로워 관리</h2>
-          <p>이 메뉴는 준비 중입니다.</p>
+        <div class="dash-card" style="padding:22px 24px;">
+          <h2 style="margin:0 0 6px 0; font-size:22px; color:#fff;">팔로워 관리</h2>
+          <p style="margin:0; color:#8b949e; font-size:13px;">약사 인플루언서로서 팔로워를 이해하고 관리하는 실습 아이디어 모음입니다.</p>
+        </div>
+
+        <div class="contents-challenge">
+          <div class="challenge-head">
+            <span class="challenge-icon">🎯</span>
+            <span class="challenge-title">직접 구현해보기 — 팔로워 실습 과제</span>
+          </div>
+          <p class="challenge-desc">
+            인스타 포스트의 <code>comments</code>(Apify 응답) 와 공구 / 이벤트 데이터를 조합해 다음 기능을 만들어보세요.
+          </p>
+          <ul class="challenge-list">
+            <li><strong>활성 팔로워 TOP 20</strong> — 인스타 포스트 댓글의 작성자(<code>ownerUsername</code>) 를 모아 빈도순 정렬. 자주 댓글 다는 팔로워가 약사님의 핵심 코어 팔로워</li>
+            <li><strong>관심사 키워드 분석</strong> — 댓글 본문에서 자주 등장하는 단어(예: "수면", "면역", "다이어트") 추출 → 약사로서 어떤 컨텐츠를 더 만들지 인사이트</li>
+            <li><strong>이벤트 응답자 ↔ 팔로워 매칭</strong> — <code>event.html</code> 의 당첨자 폼 응답자(인스타 핸들) 가 실제 댓글 활동도 하는 팔로워인지 교차 확인</li>
+            <li><strong>공구 참여 → 매출 기여 팔로워</strong> — 공구 알림 포스트 댓글 단 팔로워 중, 실제 구매로 이어진 사람 비율 (<code>cachedPlans</code> 의 <code>totalSales</code> 와 연계)</li>
+            <li><strong>약사 신뢰 지수</strong> — 팔로워별 재댓글률 × 좋아요 빈도 가중 점수로 "건강 상담 신뢰 지수" 시각화. 약사 컨텐츠의 충성 팔로워 그룹 파악</li>
+          </ul>
+          <p class="challenge-hint">
+            💡 Apify <code>apify/instagram-scraper</code> 의 <code>resultsType: "comments"</code> 옵션 또는 별도 <code>apify/instagram-comment-scraper</code> Actor 를 추가하면 댓글 데이터까지 가져올 수 있어요. Claude Code 에 "팔로워 관리 view 에 댓글 작성자 빈도 TOP 20 표 만들어줘" 같이 요청하면 빠르게 프로토타입.
+          </p>
         </div>
       </section>
       <section class="view" id="view-consult">
