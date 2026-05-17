@@ -122,6 +122,42 @@
     }
     details.step-collapse[open] > summary .collapse-hint::after { content: ' (접기)'; }
     details.step-collapse > .step-body { margin-top: 12px; }
+
+    .loading-box {
+      background: rgba(29, 158, 117, 0.06);
+      border: 1px solid rgba(29, 158, 117, 0.25);
+      border-radius: 10px; padding: 18px 20px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .loading-row { display: flex; align-items: center; gap: 12px; }
+    .loading-spinner {
+      width: 22px; height: 22px; flex-shrink: 0;
+      border: 3px solid rgba(29, 158, 117, 0.18);
+      border-top-color: var(--teal);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-label { font-size: 13px; color: #fff; font-weight: 600; }
+    .loading-elapsed {
+      margin-left: auto; font-size: 12px; color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+    .loading-bar {
+      position: relative; height: 4px; background: rgba(29, 158, 117, 0.12);
+      border-radius: 2px; overflow: hidden;
+    }
+    .loading-bar-fill {
+      position: absolute; top: 0; bottom: 0; width: 40%;
+      background: linear-gradient(90deg, transparent, var(--teal), transparent);
+      animation: indeterminate 1.4s ease-in-out infinite;
+    }
+    @keyframes indeterminate {
+      0% { left: -40%; }
+      100% { left: 100%; }
+    }
+    .loading-hint { font-size: 11px; color: var(--muted); line-height: 1.5; }
+    .loading-stage { font-size: 11px; color: var(--teal); margin-top: 2px; }
   </style>
 </head>
 <body>
@@ -335,7 +371,36 @@ const posts = await res.json();
 
     setStatus('Apify Actor 호출 중... (cold-start 시 30초~1분 걸릴 수 있습니다)');
     fetchBtn.disabled = true;
-    resultsEl.innerHTML = '<p class="hint">불러오는 중...</p>';
+    resultsEl.innerHTML = `
+      <div class="loading-box">
+        <div class="loading-row">
+          <div class="loading-spinner"></div>
+          <div class="loading-label">Apify Actor 호출 중</div>
+          <div class="loading-elapsed" id="loading-elapsed">경과 0초</div>
+        </div>
+        <div class="loading-bar"><div class="loading-bar-fill"></div></div>
+        <div>
+          <div class="loading-stage" id="loading-stage">① 요청 전송 중...</div>
+          <div class="loading-hint">Apify Actor 가 처음 실행될 때 30초~1분 정도 걸릴 수 있습니다. 페이지를 닫지 말고 잠시 기다려주세요.</div>
+        </div>
+      </div>
+    `;
+    const startTs = Date.now();
+    const elapsedEl = document.getElementById('loading-elapsed');
+    const stageEl = document.getElementById('loading-stage');
+    const loadingTimer = setInterval(() => {
+      if (!elapsedEl) return;
+      const sec = Math.floor((Date.now() - startTs) / 1000);
+      const mm = String(Math.floor(sec / 60)).padStart(1, '0');
+      const ss = String(sec % 60).padStart(2, '0');
+      elapsedEl.textContent = `경과 ${mm}:${ss}`;
+      if (stageEl) {
+        if (sec < 5)       stageEl.textContent = '① 요청 전송 중...';
+        else if (sec < 25) stageEl.textContent = '② Apify Actor 가 인스타에 접속 중 (cold-start)...';
+        else if (sec < 55) stageEl.textContent = '③ 포스트 데이터 수집 중...';
+        else               stageEl.textContent = '④ 응답 처리 중... (오래 걸리면 콘솔 확인)';
+      }
+    }, 1000);
 
     try {
       const endpoint = 'https://api.apify.com/v2/acts/apify~instagram-scraper'
@@ -364,6 +429,7 @@ const posts = await res.json();
       setStatus('오류: ' + e.message, 'error');
       resultsEl.innerHTML = '<p class="hint">호출에 실패했습니다. 토큰이 유효한지, 핸들이 정확한지, 네트워크가 연결되어 있는지 확인하세요.</p>';
     } finally {
+      clearInterval(loadingTimer);
       fetchBtn.disabled = false;
     }
   }
