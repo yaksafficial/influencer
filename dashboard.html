@@ -1844,6 +1844,27 @@
             <span class="pv-stat-top" id="pv-stat">—</span>
           </div>
 
+          <div class="contents-challenge">
+            <div class="challenge-head">
+              <span class="challenge-icon">🎯</span>
+              <span class="challenge-title">직접 구현해보기 — 약사 전문성 입히기</span>
+            </div>
+            <p class="challenge-desc">
+              현재 테이블은 친한스토어 API 가 주는 기본 정보만 보여줍니다. 약사 인플루언서로서 <strong>제품 효능 · 성분 · 복용 가이드</strong> 같은 전문 데이터를 입혀보는 실습 아이디어입니다.
+            </p>
+            <ul class="challenge-list">
+              <li><strong>제품별 약사 메모</strong> — 각 행에 효능 · 성분 · 주의사항 · 복용법을 직접 입력하고 <code>localStorage</code> 에 저장. 페이지를 새로고침해도 유지</li>
+              <li><strong>성분 자동 추출 + 분류</strong> — 제품명에서 성분 키워드(<code>오메가3</code>, <code>프로바이오</code>, <code>비타민D</code>, <code>마그네슘</code> 등) 추출 → 성분 필터/그룹</li>
+              <li><strong>건강 카테고리 매핑</strong> — 면역 / 다이어트 / 수면 / 관절 / 장 건강 등 카테고리로 분류해 카드 색이나 배지로 시각화</li>
+              <li><strong>약사 추천 등급 ⭐</strong> — 각 제품에 1~5점 추천 등급 + 코멘트. 평균 점수 높은 제품 TOP 5 panel</li>
+              <li><strong>제품 상세 모달 확장</strong> — 행 클릭 시 열리는 모달의 <code>openProductDetail</code> 에 효능 / 성분 / 복용법 / 약사 코멘트 섹션 추가</li>
+              <li><strong>복용 조합 안내</strong> — 함께 먹어도 좋은 / 피해야 할 조합 메모 (약사 전문성 활용). 예: 오메가3 + 비타민E 동시 복용 안내</li>
+            </ul>
+            <p class="challenge-hint">
+              💡 Claude Code 에 "제품 관리 테이블에 약사 메모 컬럼 추가하고 localStorage 에 저장해줘" 같이 요청하면 빠르게 구현. 데이터가 늘면 별도 <code>functions/api/product-notes</code> 프록시로 옮겨 팀과 공유 가능.
+            </p>
+          </div>
+
           <div class="pv-filters">
             <div class="field-inline">
               <input type="text" id="pv-keyword" placeholder="제품명·브랜드·약국 검색" spellcheck="false">
