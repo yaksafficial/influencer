@@ -1125,24 +1125,29 @@
     <aside class="sidebar">
       <div class="sidebar-brand">파마브로스</div>
 
-      <div class="sidebar-group-label">공동구매</div>
       <a class="sidebar-item" href="#dashboard" data-view="dashboard">
         <span class="icon">📊</span><span>대시보드</span>
       </a>
+
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-group-label">공동구매</div>
       <a class="sidebar-item" href="#schedule" data-view="schedule">
-        <span class="icon">📅</span><span>공동구매 일정</span>
+        <span class="icon">📅</span><span>일정 관리</span>
       </a>
       <a class="sidebar-item" href="#products" data-view="products">
-        <span class="icon">📦</span><span>제품 구좌</span>
-      </a>
-      <a class="sidebar-item" href="#sellers" data-view="sellers">
-        <span class="icon">🏷️</span><span>파트너</span><span class="wip">WIP</span>
+        <span class="icon">📦</span><span>제품 관리</span>
       </a>
       <a class="sidebar-item" href="#sales" data-view="sales">
-        <span class="icon">💰</span><span>매출</span><span class="wip">WIP</span>
+        <span class="icon">💰</span><span>매출 관리</span><span class="wip">WIP</span>
       </a>
+      <a class="sidebar-item" href="#sellers" data-view="sellers">
+        <span class="icon">🏷️</span><span>파트너 관리</span><span class="wip">WIP</span>
+      </a>
+
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-group-label">고객관리</div>
       <a class="sidebar-item" href="#customers" data-view="customers">
-        <span class="icon">👥</span><span>고객</span><span class="wip">WIP</span>
+        <span class="icon">👥</span><span>개인 고객</span><span class="wip">WIP</span>
       </a>
       <a class="sidebar-item" href="#consult" data-view="consult">
         <span class="icon">💬</span><span>개인 상담</span><span class="wip">WIP</span>
@@ -1150,7 +1155,13 @@
 
       <div class="sidebar-divider"></div>
       <div class="sidebar-group-label">직원 관리</div>
-      <div class="sidebar-group-empty">준비 중입니다.</div>
+      <a class="sidebar-item" href="#staff" data-view="staff">
+        <span class="icon">👤</span><span>직원</span><span class="wip">WIP</span>
+      </a>
+      <a class="sidebar-item" href="#attendance" data-view="attendance">
+        <span class="icon">🕒</span><span>근태 관리</span><span class="wip">WIP</span>
+      </a>
+
       <div class="sidebar-divider"></div>
       <div class="sidebar-group-label">스터디 도구</div>
       <a class="sidebar-item" href="./index.html" target="_blank" rel="noopener">
@@ -1319,7 +1330,7 @@
       <section class="view" id="view-products">
         <div class="pv-wrap">
           <div class="pv-title-row">
-            <div class="pv-title">제품 구좌</div>
+            <div class="pv-title">제품 관리</div>
             <span class="pv-stat-top" id="pv-stat">—</span>
           </div>
 
@@ -1383,25 +1394,37 @@
       </section>
       <section class="view" id="view-sellers">
         <div class="view-placeholder">
-          <h2>파트너</h2>
+          <h2>파트너 관리</h2>
           <p>이 메뉴는 준비 중입니다.</p>
         </div>
       </section>
       <section class="view" id="view-sales">
         <div class="view-placeholder">
-          <h2>매출</h2>
+          <h2>매출 관리</h2>
           <p>이 메뉴는 준비 중입니다.</p>
         </div>
       </section>
       <section class="view" id="view-customers">
         <div class="view-placeholder">
-          <h2>고객</h2>
+          <h2>개인 고객</h2>
           <p>이 메뉴는 준비 중입니다.</p>
         </div>
       </section>
       <section class="view" id="view-consult">
         <div class="view-placeholder">
           <h2>개인 상담</h2>
+          <p>이 메뉴는 준비 중입니다.</p>
+        </div>
+      </section>
+      <section class="view" id="view-staff">
+        <div class="view-placeholder">
+          <h2>직원</h2>
+          <p>이 메뉴는 준비 중입니다.</p>
+        </div>
+      </section>
+      <section class="view" id="view-attendance">
+        <div class="view-placeholder">
+          <h2>근태 관리</h2>
           <p>이 메뉴는 준비 중입니다.</p>
         </div>
       </section>
@@ -1659,7 +1682,7 @@
   };
 
   // === View Router ===
-  const VALID_VIEWS = ['dashboard', 'schedule', 'products', 'sellers', 'sales', 'customers', 'consult'];
+  const VALID_VIEWS = ['dashboard', 'schedule', 'products', 'sellers', 'sales', 'customers', 'consult', 'staff', 'attendance'];
   let currentView = null;
 
   const VIEW_INITIALIZERS = {
@@ -1693,6 +1716,8 @@
     sales: function initPlaceholderView() {},
     customers: function initPlaceholderView() {},
     consult: function initPlaceholderView() {},
+    staff: function initPlaceholderView() {},
+    attendance: function initPlaceholderView() {},
   };
 
   // === Products Summary (for dashboard metric cards) ===
@@ -2031,7 +2056,7 @@
     const modal = document.getElementById('detail-modal');
     if (!title || !body || !modal) return;
 
-    title.textContent = '제품 구좌 상세';
+    title.textContent = '제품 관리 상세';
 
     const grid = [
       ['약국', row.pharmacyName],
