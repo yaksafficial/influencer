@@ -1828,6 +1828,58 @@
     });
   }
 
+  function openProductDetail(row) {
+    const title = document.getElementById('modal-title');
+    const body = document.getElementById('modal-body');
+    const modal = document.getElementById('detail-modal');
+    if (!title || !body || !modal) return;
+
+    title.textContent = '제품 구좌 상세';
+
+    const grid = [
+      ['약국', row.pharmacyName],
+      ['인플루언서', row.influencerName],
+      ['셀러', row.sellerName],
+      ['담당자', row.adminName],
+      ['매핑 번호', row.groupPurchaseProductInfluencerIdx],
+      ['제품 번호', row.groupPurchaseProductIdx],
+      ['매핑 등록일', pvFormatDate(row.createdAt)],
+      ['직전 공구일', pvFormatDate(row.previousPlanStartedAt)],
+      ['다음 공구일', pvFormatDate(row.nextPlanStartedAt)],
+      ['임시 매핑', row.isTemp ? '예' : '아니오'],
+    ];
+
+    const badge = row.availableGroupPurchaseProduct
+      ? '<span class="pv-badge ok">✅ 공구 가능</span>'
+      : '<span class="pv-badge ng">❌ 공구 불가</span>';
+
+    const reason = (row.unavailableReason && row.unavailableReason.trim())
+      ? `<div style="margin-top:10px; color:#f87171; font-size:13px;">사유: ${pvSafe(row.unavailableReason)}</div>`
+      : '';
+
+    body.innerHTML = `
+      <div style="display:flex; gap:16px; margin-bottom:18px; align-items:center;">
+        <img src="${pvSafe(row.imageUrl)}" style="width:120px; height:120px; object-fit:cover; border-radius:8px; background:#1f2530;" onerror="this.style.visibility='hidden'">
+        <div>
+          <div style="font-size:11px; color:#8b949e; margin-bottom:4px;">${pvSafe(row.brandName)}</div>
+          <div style="font-size:18px; font-weight:700; color:#fff;">${pvSafe(row.productName)}</div>
+          <div style="margin-top:10px;">${badge}</div>
+          ${reason}
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; font-size:13px;">
+        ${grid.map(([k,v]) => `
+          <div>
+            <div style="color:#8b949e; font-size:11px; margin-bottom:2px;">${pvSafe(k)}</div>
+            <div style="color:#c9d1d9;">${pvSafe(v)}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+    modal.classList.add('show');
+  }
+
   function showView(name) {
     if (!VALID_VIEWS.includes(name)) name = 'dashboard';
     if (currentView === name) return;
