@@ -1646,9 +1646,119 @@
     }
   }
 
-  // 임시 renderProductsView — Task 5에서 진짜 구현으로 교체됨
+  function pvFormatDate(iso) {
+    if (!iso) return '-';
+    return String(iso).slice(0, 10);
+  }
+  function pvSafe(s) {
+    return esc(s == null ? '' : String(s));   // 기존 esc() 재사용
+  }
+
   function renderProductsView() {
-    console.log('[products]', { ...productsState });
+    const wrap = document.getElementById('pv-table-wrap');
+    const tbody = document.getElementById('pv-tbody');
+    const stat = document.getElementById('pv-stat');
+    const pageInfo = document.getElementById('pv-page-info');
+    const prev = document.getElementById('pv-prev');
+    const next = document.getElementById('pv-next');
+
+    // 기존 오버레이/상태 메시지 제거
+    wrap.querySelectorAll('.pv-loading-overlay, .pv-empty, .pv-error').forEach(el => el.remove());
+
+    // 로딩 오버레이
+    if (productsState.loading) {
+      const ov = document.createElement('div');
+      ov.className = 'pv-loading-overlay';
+      ov.innerHTML = '<span class="pv-spinner"></span><span>불러오는 중...</span>';
+      wrap.appendChild(ov);
+    }
+
+    // 에러
+    if (productsState.error === 'network') {
+      tbody.innerHTML = '';
+      const err = document.createElement('div');
+      err.className = 'pv-error';
+      err.innerHTML = '오류가 발생했습니다. 잠시 후 다시 시도해주세요.<br><button id="pv-retry">↻ 재시도</button>';
+      wrap.appendChild(err);
+      document.getElementById('pv-retry').onclick = () => fetchProducts();
+      stat.textContent = '—';
+      pageInfo.textContent = '1 / 1';
+      prev.disabled = true; next.disabled = true;
+      return;
+    }
+
+    // 데이터 없음 (초기 또는 응답 전)
+    if (!productsState.data) {
+      tbody.innerHTML = '';
+      stat.textContent = '—';
+      return;
+    }
+
+    const total = productsState.data.meta.totalCount;
+    const items = productsState.data.data || [];
+
+    // 빈 결과
+    if (items.length === 0) {
+      tbody.innerHTML = '';
+      const empty = document.createElement('div');
+      empty.className = 'pv-empty';
+      empty.innerHTML = '조건에 맞는 매핑이 없습니다.<br><button id="pv-reset">필터 초기화</button>';
+      wrap.appendChild(empty);
+      document.getElementById('pv-reset').onclick = () => resetProductsFilters();
+      stat.textContent = '총 0건';
+      pageInfo.textContent = '1 / 1';
+      prev.disabled = true; next.disabled = true;
+      return;
+    }
+
+    // 테이블 본문
+    tbody.innerHTML = items.map((it, idx) => `
+      <tr data-idx="${idx}">
+        <td><img class="pv-thumb" src="${pvSafe(it.imageUrl)}" alt="" onerror="this.style.visibility='hidden'"></td>
+        <td>
+          <div class="pv-product-name">${pvSafe(it.productName)}</div>
+          <div class="pv-brand-name">${pvSafe(it.brandName)}</div>
+        </td>
+        <td>${pvSafe(it.pharmacyName)}</td>
+        <td>${pvSafe(it.sellerName)}</td>
+        <td>${pvFormatDate(it.previousPlanStartedAt)}</td>
+        <td>${pvFormatDate(it.nextPlanStartedAt)}</td>
+        <td>${it.availableGroupPurchaseProduct
+          ? '<span class="pv-badge ok">✅ 가능</span>'
+          : '<span class="pv-badge ng">❌ 불가</span>'}</td>
+      </tr>
+    `).join('');
+
+    // 행 클릭 핸들러 (Task 7 에서 모달 연결)
+    tbody.querySelectorAll('tr').forEach(tr => {
+      tr.onclick = () => {
+        const i = Number(tr.dataset.idx);
+        const row = items[i];
+        if (typeof openProductDetail === 'function') openProductDetail(row);
+      };
+    });
+
+    // 통계 + 페이지네이션
+    const totalPages = Math.max(1, Math.ceil(total / productsState.size));
+    stat.textContent = `총 ${total}건`;
+    pageInfo.textContent = `${productsState.page + 1} / ${totalPages}`;
+    prev.disabled = productsState.page <= 0;
+    next.disabled = productsState.page + 1 >= totalPages;
+  }
+
+  function resetProductsFilters() {
+    productsState.keyword = '';
+    productsState.available = 'true';
+    productsState.isExpired = false;
+    productsState.sortType = 'LAST_PLAN_ASC';
+    productsState.page = 0;
+    productsState.size = 20;
+    document.getElementById('pv-keyword').value = '';
+    document.querySelectorAll('input[name="pv-avail"]').forEach(r => r.checked = (r.value === 'true'));
+    document.getElementById('pv-expired').checked = false;
+    document.getElementById('pv-sort').value = 'LAST_PLAN_ASC';
+    document.getElementById('pv-size').value = '20';
+    fetchProducts();
   }
 
   function showView(name) {
