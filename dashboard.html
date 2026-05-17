@@ -1948,11 +1948,10 @@
             아래 데이터로 다음 기능을 한 번 적용해보세요. <code>cachedPosts</code> 또는 <code>instagramState.posts</code> 배열을 활용하면 됩니다.
           </p>
           <ul class="challenge-list">
-            <li><strong>키워드 검색</strong> — 캡션에 특정 단어(예: "공구", "추천", "이벤트")가 들어간 포스트만 필터링</li>
-            <li><strong>해시태그 추출 + 빈도 분석</strong> — 캡션의 <code>#태그</code> 를 모아 가장 많이 쓴 해시태그 TOP 10</li>
-            <li><strong>키워드별 인게이지먼트 분석</strong> — 키워드를 포함한 포스트의 평균 좋아요·댓글이 전체 평균보다 높은지 비교</li>
-            <li><strong>시간대/요일 분석</strong> — <code>timestamp</code> 로 어느 요일·시간대에 올린 포스트의 반응이 좋은지</li>
-            <li><strong>컨텐츠 타입별 비교</strong> — 이미지 vs 캐러셀 vs 릴스 의 인게이지먼트 평균 차이</li>
+            <li><strong>제품 키워드 · 해시태그 필터링</strong> — 캡션의 제품명(예: "오메가3", "프로바이오") 이나 <code>#태그</code> 로 포스트 필터링</li>
+            <li><strong>자주 쓰는 해시태그 모아보기</strong> — 캡션에서 <code>#태그</code> 추출 + 빈도순 TOP 10 (워드 클라우드 / 막대 차트)</li>
+            <li><strong>시간대 · 요일 분석</strong> — <code>timestamp</code> 로 어느 요일·시간대에 올린 포스트의 반응이 좋은지</li>
+            <li><strong>공구 매출 기여도 측정</strong> — <code>일정 관리</code> 의 공구 plan(<code>title</code>·<code>brand</code>·<code>totalSales</code>) 과 인스타 캡션 키워드를 매칭, 컨텐츠가 어느 공구 매출에 기여했는지 추정</li>
           </ul>
           <p class="challenge-hint">
             💡 Claude Code 에서 <code>/dashboard 의 view-contents 에 키워드 검색 input 과 필터링 로직 추가해줘</code> 같이 요청하면 빠르게 프로토타입 가능
