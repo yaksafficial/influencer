@@ -880,6 +880,54 @@
       .modal-info-grid { grid-template-columns: 1fr; }
       .modal-card { width: 100%; max-width: 100vw; }
     }
+
+    /* === Sidebar Layout === */
+    .dash-shell { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 240px; flex-shrink: 0;
+      background: #0d1117; color: #c9d1d9;
+      border-right: 1px solid #1f2530;
+      display: flex; flex-direction: column;
+      position: sticky; top: 0; height: 100vh;
+      overflow-y: auto;
+    }
+    .sidebar-brand {
+      padding: 20px 18px 16px;
+      font-weight: 700; letter-spacing: 0.08em; font-size: 13px;
+      color: #fff; border-bottom: 1px solid #1f2530;
+    }
+    .sidebar-group-label {
+      padding: 14px 18px 6px;
+      font-size: 11px; letter-spacing: 0.12em;
+      color: #6e7681; text-transform: uppercase;
+    }
+    .sidebar-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 18px; font-size: 14px;
+      color: #c9d1d9; cursor: pointer; text-decoration: none;
+      border-left: 3px solid transparent;
+    }
+    .sidebar-item:hover { background: #161b22; color: #fff; }
+    .sidebar-item.active {
+      background: #161b22; color: #fff;
+      border-left-color: var(--teal, #2dd4bf);
+    }
+    .sidebar-item .icon { width: 18px; text-align: center; }
+    .sidebar-item .wip {
+      margin-left: auto; font-size: 10px; color: #6e7681;
+      border: 1px solid #30363d; padding: 1px 6px; border-radius: 3px;
+    }
+    .sidebar-divider { height: 1px; background: #1f2530; margin: 10px 0; }
+    .sidebar-footer { margin-top: auto; padding: 12px 0 18px; border-top: 1px solid #1f2530; }
+    .dash-main { flex: 1; min-width: 0; }
+
+    /* View containers */
+    .view { display: none; }
+    .view.active { display: block; }
+    .view-placeholder {
+      padding: 80px 40px; text-align: center; color: #6e7681;
+    }
+    .view-placeholder h2 { font-size: 24px; margin-bottom: 8px; color: #c9d1d9; }
   </style>
 </head>
 <body>
@@ -958,6 +1006,68 @@
 
 <!-- ── Admin View ── -->
 <div id="admin-view">
+  <div class="dash-shell">
+    <!-- 좌측 사이드바 -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">파마브로스</div>
+
+      <div class="sidebar-group-label">관리 도구</div>
+      <a class="sidebar-item" href="#dashboard" data-view="dashboard">
+        <span class="icon">📊</span><span>대시보드</span>
+      </a>
+      <a class="sidebar-item" href="#products" data-view="products">
+        <span class="icon">📦</span><span>제품 구좌</span>
+      </a>
+      <a class="sidebar-item" href="#sellers" data-view="sellers">
+        <span class="icon">🏷️</span><span>셀러</span><span class="wip">WIP</span>
+      </a>
+      <a class="sidebar-item" href="#sales" data-view="sales">
+        <span class="icon">💰</span><span>매출</span><span class="wip">WIP</span>
+      </a>
+      <a class="sidebar-item" href="#customers" data-view="customers">
+        <span class="icon">👥</span><span>고객</span><span class="wip">WIP</span>
+      </a>
+
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-group-label">작업 도구</div>
+      <a class="sidebar-item" href="./index.html" target="_blank" rel="noopener">
+        <span class="icon">🗓️</span><span>공구 캘린더</span>
+      </a>
+      <a class="sidebar-item" href="./event.html" target="_blank" rel="noopener">
+        <span class="icon">🎁</span><span>이벤트 폼</span>
+      </a>
+      <a class="sidebar-item" href="./event-admin.html" target="_blank" rel="noopener">
+        <span class="icon">🎁</span><span>이벤트 관리</span>
+      </a>
+      <a class="sidebar-item" href="./study.html" target="_blank" rel="noopener">
+        <span class="icon">📚</span><span>스터디 신청</span>
+      </a>
+      <a class="sidebar-item" href="./study-admin.html" target="_blank" rel="noopener">
+        <span class="icon">📚</span><span>스터디 관리</span>
+      </a>
+      <a class="sidebar-item" href="./study-raffle.html" target="_blank" rel="noopener">
+        <span class="icon">📚</span><span>스터디 룰렛</span>
+      </a>
+      <a class="sidebar-item" href="./study-curriculum.html" target="_blank" rel="noopener">
+        <span class="icon">📚</span><span>커리큘럼</span>
+      </a>
+      <a class="sidebar-item" href="./study-skills-practice.html" target="_blank" rel="noopener">
+        <span class="icon">📚</span><span>스킬 실습</span>
+      </a>
+
+      <div class="sidebar-footer">
+        <a class="sidebar-item" href="#" onclick="event.preventDefault(); document.getElementById('mask-btn').click();">
+          <span class="icon">🪙</span><span>금액 토글</span>
+        </a>
+        <a class="sidebar-item" href="#" onclick="event.preventDefault(); logout();">
+          <span class="icon">🚪</span><span>로그아웃</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- 우측 본문 -->
+    <main class="dash-main">
+      <section class="view" id="view-dashboard">
   <div class="dash-wrap">
 
     <!-- Header -->
@@ -1049,6 +1159,13 @@
       </div>
     </div>
 
+  </div>
+      </section>
+      <section class="view" id="view-products"></section>
+      <section class="view" id="view-sellers"></section>
+      <section class="view" id="view-sales"></section>
+      <section class="view" id="view-customers"></section>
+    </main>
   </div>
 </div>
 
