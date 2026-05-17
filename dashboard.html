@@ -1099,6 +1099,39 @@
       color: #6e7681; font-size: 13px;
       background: #161b22; border: 1px dashed #30363d; border-radius: 10px;
     }
+    .active-plans-table-wrap {
+      margin-top: 14px; overflow-x: auto;
+      background: #161b22; border: 1px solid #1f2530; border-radius: 10px;
+    }
+    .active-plans-table {
+      width: 100%; border-collapse: collapse;
+    }
+    .active-plans-table th, .active-plans-table td {
+      padding: 10px 12px; text-align: left; font-size: 12px;
+      border-bottom: 1px solid #1f2530; color: #c9d1d9; white-space: nowrap;
+    }
+    .active-plans-table th {
+      background: #0d1117; color: #8b949e; font-weight: 600;
+      font-size: 11px; letter-spacing: 0.04em;
+    }
+    .active-plans-table tbody tr { cursor: pointer; }
+    .active-plans-table tbody tr:hover { background: rgba(45, 212, 191, 0.04); }
+    .active-plans-table tbody tr:last-child td { border-bottom: 0; }
+    .active-plans-table .col-idx { width: 36px; color: #6e7681; text-align: center; }
+    .active-plans-table .col-name {
+      display: flex; align-items: center; gap: 8px;
+      max-width: 320px;
+    }
+    .active-plans-table .col-name img {
+      width: 32px; height: 32px; object-fit: cover;
+      border-radius: 6px; flex-shrink: 0; background: #1f2530;
+    }
+    .active-plans-table .col-name span {
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    .active-plans-table .col-brand { color: var(--teal); }
+    .active-plans-table .col-status .pv-badge { font-size: 10px; }
+    .active-plans-table .col-sales { text-align: right; font-variant-numeric: tabular-nums; }
   </style>
 </head>
 <body>
@@ -1292,6 +1325,24 @@
         <div class="active-plans-count" id="active-plans-count">—</div>
       </div>
       <div class="active-plans-grid" id="active-plans-grid"></div>
+      <div class="active-plans-table-wrap" id="active-plans-table-wrap" style="display:none">
+        <table class="active-plans-table">
+          <thead>
+            <tr>
+              <th class="col-idx">#</th>
+              <th>공구명</th>
+              <th>브랜드</th>
+              <th>약사</th>
+              <th>시작일</th>
+              <th>종료일</th>
+              <th>상태</th>
+              <th class="col-sales">매출</th>
+              <th>파트너</th>
+            </tr>
+          </thead>
+          <tbody id="active-plans-tbody"></tbody>
+        </table>
+      </div>
     </div>
 
     <!-- Metrics -->
@@ -2706,6 +2757,39 @@
             '</div>' +
           '</div>' +
         '</div>';
+    }).join('');
+
+    const tableWrap = document.getElementById('active-plans-table-wrap');
+    const tbody = document.getElementById('active-plans-tbody');
+    if (!tableWrap || !tbody) return;
+
+    if (active.length === 0) {
+      tableWrap.style.display = 'none';
+      tbody.innerHTML = '';
+      return;
+    }
+
+    tableWrap.style.display = '';
+    tbody.innerHTML = active.map((p, idx) => {
+      const sales = moneyMasked ? '***' : (p.totalSales ? formatCurrency(p.totalSales) : '-');
+      return `
+        <tr onclick="openDetail(${Number(p.id)})">
+          <td class="col-idx">${idx + 1}</td>
+          <td>
+            <div class="col-name">
+              <img src="${esc(p.imageUrl || '')}" alt="" onerror="this.style.visibility='hidden'">
+              <span>${esc(p.title || '')}</span>
+            </div>
+          </td>
+          <td class="col-brand">${esc(p.brand || '')}</td>
+          <td>${esc(p.influencerName || '')}</td>
+          <td>${esc(pvFormatDate(p.startDate))}</td>
+          <td>${esc(pvFormatDate(p.endDate))}</td>
+          <td class="col-status"><span class="pv-badge ok">${esc(p.stepLabel || '공구중')}</span></td>
+          <td class="col-sales">${esc(sales)}</td>
+          <td>${esc(p.sellerName || '')}</td>
+        </tr>
+      `;
     }).join('');
   }
 
