@@ -612,7 +612,19 @@ html, body {
           <span class="command">node</span> <span class="flag">--version</span><br>
           <span class="command">npm</span> <span class="flag">--version</span>
         </div>
-        <div class="tip"><strong>Homebrew 사용자:</strong> <code>brew install node</code>로도 설치 가능합니다.</div>
+        <div class="tip">
+          <strong>Homebrew 사용자:</strong> <code>brew install node</code>로도 설치 가능합니다.<br>
+          <strong>Homebrew 가 아직 없다면 (M 계열 Mac):</strong> 아래 명령으로 먼저 설치
+          <div class="code-block" style="margin-top:8px;">
+            <span class="comment"># Homebrew 설치 (공식)</span><br>
+            /bin/bash -c <span class="flag">"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</span><br><br>
+            <span class="comment"># 설치 후 (Apple Silicon) — Homebrew 를 PATH 에 추가</span><br>
+            <span class="command">echo</span> <span class="flag">'eval "$(/opt/homebrew/bin/brew shellenv)"'</span> &gt;&gt; ~/.zprofile<br>
+            <span class="command">eval</span> <span class="flag">"$(/opt/homebrew/bin/brew shellenv)"</span><br><br>
+            <span class="comment"># 설치 확인</span><br>
+            <span class="command">brew</span> <span class="flag">--version</span>
+          </div>
+        </div>
       </div>
 
       <div class="step-card">
