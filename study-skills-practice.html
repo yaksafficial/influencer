@@ -683,7 +683,21 @@ html, body {
       </div>
 
       <div class="step-card">
-        <div class="step-label">Step 9 — 터미널 2개로 서버 + Claude Code 동시 실행</div>
+        <div class="step-label">Step 9 — cmux 설치 (선택, Claude 세션 multiplexer)</div>
+        <p>여러 Claude Code 세션을 한 화면에서 동시에 관리할 수 있는 도구입니다. 한 세션은 코딩, 다른 세션은 디버깅·문서 작성 식으로 병렬 작업할 때 유용합니다.</p>
+        <div class="code-block">
+          <span class="comment"># 공식 GitHub: https://github.com/anthropics/cmux (또는 사용 중인 cmux 배포처)</span><br>
+          <span class="comment"># 권장: 공식 README 의 최신 설치 명령을 그대로 사용</span><br><br>
+          <span class="comment"># Homebrew 예시</span><br>
+          <span class="command">brew</span> install cmux<br><br>
+          <span class="comment"># 또는 npm 글로벌 설치 (패키지명은 공식 안내 참고)</span><br>
+          <span class="command">npm</span> install <span class="flag">-g</span> cmux
+        </div>
+        <div class="tip"><strong>꼭 필요한가요?</strong> 없어도 실습에는 지장 없습니다. 동시에 2~3개 작업을 굴리기 시작하면 그때 설치해도 OK. 처음 학습 단계라면 일반 터미널 2개로 충분합니다.</div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-label">Step 10 — 터미널 2개로 서버 + Claude Code 동시 실행</div>
         <p>터미널 창을 2개 열어 각각 서버와 Claude Code를 실행합니다.</p>
 
         <p style="margin-top:12px;font-weight:700;color:#FF6B2B;">터미널 1 — 로컬 서버</p>
@@ -742,7 +756,7 @@ html, body {
       </div>
 
       <div class="step-card">
-        <div class="step-label">Step 10 — (선택) 상태바(Statusline) 설정</div>
+        <div class="step-label">Step 11 — (선택) 상태바(Statusline) 설정</div>
         <p>Claude Code 하단에 <strong>시간 · 모델명 · 컨텍스트 사용률 · 5시간/주간 사용 한도</strong>를 한 줄로 보여주는 상태바를 추가합니다. 작업 중 한도를 미리 확인할 수 있어 유용합니다.</p>
 
         <p style="margin-top:10px;font-weight:700;color:#FF6B2B;">설정 방법 (가장 쉬운 방식)</p>
@@ -870,7 +884,19 @@ html, body {
       </div>
 
       <div class="step-card">
-        <div class="step-label">Step 8 — 로컬 서버 실행</div>
+        <div class="step-label">Step 8 — cmux 설치 (선택, Claude 세션 multiplexer)</div>
+        <p>여러 Claude Code 세션을 한 화면에서 동시에 관리할 수 있는 도구입니다. 한 세션은 코딩, 다른 세션은 디버깅·문서 작성 식으로 병렬 작업할 때 유용합니다.</p>
+        <div class="code-block">
+          <span class="comment"># 공식 GitHub: https://github.com/anthropics/cmux (또는 사용 중인 cmux 배포처)</span><br>
+          <span class="comment"># 권장: 공식 README 의 최신 설치 명령을 그대로 사용</span><br><br>
+          <span class="comment"># Windows: Scoop / Chocolatey / npm 등 본인 환경에 맞게</span><br>
+          <span class="command">npm</span> install <span class="flag">-g</span> cmux
+        </div>
+        <div class="tip"><strong>꼭 필요한가요?</strong> 없어도 실습에는 지장 없습니다. 동시에 2~3개 작업을 굴리기 시작하면 그때 설치해도 OK. 처음 학습 단계라면 일반 터미널 2개로 충분합니다.</div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-label">Step 9 — 로컬 서버 실행</div>
         <p>프로젝트를 브라우저에서 확인합니다. CORS 프록시가 포함된 서버를 실행합니다.</p>
         <div class="code-block">
           <span class="command">npx</span> wrangler pages dev .
@@ -880,7 +906,7 @@ html, body {
       </div>
 
       <div class="step-card">
-        <div class="step-label">Step 9 — 터미널 분할 + Claude Code 실행</div>
+        <div class="step-label">Step 10 — 터미널 분할 + Claude Code 실행</div>
         <p>서버가 실행 중인 상태에서 화면을 분할하여 Claude Code를 동시에 띄웁니다.<br>
         <span style="font-size:11px;color:#999;">(Windows Terminal 분할 기능 또는 별도 터미널 창을 사용합니다.)</span></p>
         <div class="code-block">
@@ -900,7 +926,7 @@ html, body {
       </div>
 
       <div class="step-card">
-        <div class="step-label">Step 10 — (선택) 상태바(Statusline) 설정</div>
+        <div class="step-label">Step 11 — (선택) 상태바(Statusline) 설정</div>
         <p>Claude Code 하단에 <strong>시간 · 모델명 · 컨텍스트 사용률 · 5시간/주간 사용 한도</strong>를 한 줄로 보여주는 상태바를 추가합니다. 작업 중 한도를 미리 확인할 수 있어 유용합니다.</p>
 
         <p style="margin-top:10px;font-weight:700;color:#FF6B2B;">설정 방법 (가장 쉬운 방식)</p>
