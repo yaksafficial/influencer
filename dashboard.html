@@ -900,18 +900,22 @@
     .sidebar { transition: margin-left 0.22s ease, width 0.22s ease; }
     .dash-shell.sidebar-collapsed .sidebar { margin-left: -240px; }
     #sidebar-toggle-btn {
-      position: fixed; top: 14px; left: 252px;
-      z-index: 100;
-      width: 28px; height: 28px;
+      position: absolute; top: 14px; right: 10px;
+      z-index: 5;
+      width: 26px; height: 26px;
       display: flex; align-items: center; justify-content: center;
-      background: #161b22; color: #c9d1d9;
+      background: transparent; color: #8b949e;
       border: 1px solid #30363d; border-radius: 6px;
-      cursor: pointer; font-size: 13px;
-      transition: left 0.22s ease, background 0.15s, border-color 0.15s;
+      cursor: pointer; font-size: 12px;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
       user-select: none;
     }
     #sidebar-toggle-btn:hover { background: #1f2530; border-color: #2dd4bf; color: #fff; }
-    .dash-shell.sidebar-collapsed #sidebar-toggle-btn { left: 12px; }
+    .dash-shell.sidebar-collapsed #sidebar-toggle-btn {
+      position: fixed; top: 14px; left: 12px;
+      background: #161b22; color: #c9d1d9;
+      z-index: 100;
+    }
     .sidebar {
       width: 240px; flex-shrink: 0;
       background: #0d1117; color: #c9d1d9;
@@ -921,7 +925,7 @@
       overflow-y: auto;
     }
     .sidebar-brand {
-      padding: 20px 18px 16px;
+      padding: 20px 46px 16px 18px;
       font-weight: 700; letter-spacing: 0.08em; font-size: 13px;
       color: #fff; border-bottom: 1px solid #1f2530;
     }
@@ -1599,9 +1603,9 @@
 <!-- ── Admin View ── -->
 <div id="admin-view">
   <div class="dash-shell" id="dash-shell">
-    <button id="sidebar-toggle-btn" type="button" aria-label="사이드바 접기/펴기" title="사이드바 접기/펴기">◀</button>
     <!-- 좌측 사이드바 -->
     <aside class="sidebar">
+      <button id="sidebar-toggle-btn" type="button" aria-label="사이드바 접기/펴기" title="사이드바 접기/펴기">◀</button>
       <div class="sidebar-brand">파마브로스</div>
 
       <a class="sidebar-item" href="#dashboard" data-view="dashboard">
