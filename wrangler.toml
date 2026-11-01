@@ -1,0 +1,12 @@
+# Cloudflare Pages 설정
+# - 정적 파일은 저장소 루트(.) 그대로 배포
+# - D1 바인딩 "DB" 는 inbox.html(고객 응대 인박스) 의 Functions(/api/ig/*) 가 사용
+#   database_id 는 `wrangler d1 create influencer-inbox` 결과로 채운다.
+name = "influencer"
+pages_build_output_dir = "."
+compatibility_date = "2025-05-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "influencer-inbox"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"

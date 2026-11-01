@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>고객 응대 인박스</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-primary: #ffffff; --bg-secondary: #f4f4f2; --bg-tertiary: #eeede8;
+      --text-primary: #1a1a18; --text-secondary: #5f5e5a; --text-tertiary: #888780;
+      --border: rgba(0,0,0,0.10); --border-md: rgba(0,0,0,0.18);
+      --radius-md: 8px; --radius-lg: 12px;
+      --font-sans: 'Inter', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      --teal: #1D9E75; --teal-bg: #E1F5EE; --teal-dark: #0F6E56;
+      --amber: #BA7517; --amber-bg: #FAEEDA; --amber-dark: #854F0B;
+      --purple: #7F77DD; --purple-bg: #EEEDFE;
+      --blue: #378ADD; --blue-bg: #E6F1FB;
+      --red: #C03D2D; --red-bg: #FDECEA;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1c1c1a; --bg-secondary: #252523; --bg-tertiary: #2c2c2a;
+        --text-primary: #e8e7e2; --text-secondary: #a8a7a2; --text-tertiary: #6e6d69;
+        --border: rgba(255,255,255,0.08); --border-md: rgba(255,255,255,0.14);
+        --teal-bg: #085041; --teal-dark: #5DCAA5; --amber-bg: #412402; --amber-dark: #EF9F27;
+        --purple-bg: #2A2756; --blue-bg: #162A44; --red-bg: #3D1A15;
+      }
+    }
+    html, body { height: 100%; }
+    body { background: var(--bg-tertiary); color: var(--text-primary); font-family: var(--font-sans); font-size: 14px; line-height: 1.5; }
+    button { font-family: inherit; font-size: 13px; cursor: pointer; border: 0.5px solid var(--border-md); background: var(--bg-primary); color: var(--text-primary); border-radius: var(--radius-md); padding: 7px 12px; }
+    button:hover { background: var(--bg-secondary); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    button.primary { background: var(--teal); border-color: var(--teal); color: #fff; }
+    button.primary:hover { background: var(--teal-dark); }
+    button.danger { color: var(--red); }
+    button.sm { padding: 4px 9px; font-size: 12px; }
+    input, textarea, select { font-family: inherit; font-size: 14px; color: var(--text-primary); background: var(--bg-primary); border: 0.5px solid var(--border-md); border-radius: var(--radius-md); padding: 8px 10px; width: 100%; }
+    textarea { resize: vertical; min-height: 70px; }
+    label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+    .field { margin-bottom: 12px; }
+    .hidden { display: none !important; }
+    .muted { color: var(--text-tertiary); font-size: 12px; }
+    .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 999px; line-height: 1.4; }
+    .badge.teal { background: var(--teal-bg); color: var(--teal-dark); }
+    .badge.amber { background: var(--amber-bg); color: var(--amber-dark); }
+    .badge.red { background: var(--red-bg); color: var(--red); }
+    .badge.blue { background: var(--blue-bg); color: var(--blue); }
+    .badge.purple { background: var(--purple-bg); color: var(--purple); }
+    .badge.gray { background: var(--bg-tertiary); color: var(--text-secondary); }
+
+    /* 로그인 */
+    #login-view { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .login-card { background: var(--bg-primary); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 32px; width: 100%; max-width: 380px; }
+    .login-card h1 { font-size: 20px; margin-bottom: 4px; }
+    .login-card p { color: var(--text-secondary); font-size: 13px; margin-bottom: 20px; }
+    .err { color: var(--red); font-size: 13px; margin-top: 8px; min-height: 18px; }
+
+    /* 앱 셸 */
+    #app { display: none; height: 100vh; grid-template-columns: 200px 1fr; }
+    #app.on { display: grid; }
+    .side { background: var(--bg-primary); border-right: 0.5px solid var(--border); padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; }
+    .side .brand { font-weight: 700; font-size: 15px; padding: 6px 8px 14px; }
+    .side .nav { text-align: left; border: 0; background: transparent; padding: 9px 10px; border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center; }
+    .side .nav.active { background: var(--teal-bg); color: var(--teal-dark); font-weight: 600; }
+    .side .spacer { flex: 1; }
+    .side .me { font-size: 12px; color: var(--text-secondary); padding: 8px 10px; border-top: 0.5px solid var(--border); }
+    .health { display: flex; align-items: center; gap: 6px; font-size: 12px; padding: 6px 10px; color: var(--text-secondary); }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-tertiary); }
+    .dot.ok { background: var(--teal); } .dot.bad { background: var(--red); } .dot.warn { background: var(--amber); }
+    .main { overflow: hidden; display: flex; flex-direction: column; }
+    .topbar { display: flex; align-items: center; gap: 10px; padding: 12px 18px; border-bottom: 0.5px solid var(--border); background: var(--bg-primary); flex-wrap: wrap; }
+    .topbar h2 { font-size: 16px; margin-right: auto; }
+    .view { flex: 1; overflow: hidden; display: none; }
+    .view.on { display: flex; }
+    .split { display: grid; grid-template-columns: 300px 1fr; width: 100%; height: 100%; }
+    .pane { overflow-y: auto; }
+    .pane.left { border-right: 0.5px solid var(--border); background: var(--bg-secondary); }
+    .pane.right { padding: 16px 18px; }
+    .single { padding: 18px; overflow-y: auto; width: 100%; }
+    .card { background: var(--bg-primary); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 12px; }
+    .card h3 { font-size: 14px; margin-bottom: 10px; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--text-primary); color: var(--bg-primary); padding: 10px 16px; border-radius: 999px; font-size: 13px; z-index: 99; opacity: 0; transition: opacity .2s; pointer-events: none; max-width: 90vw; }
+    .toast.on { opacity: 1; }
+
+    /* 게시물 목록 */
+    .post-item { display: flex; gap: 10px; padding: 10px 12px; border-bottom: 0.5px solid var(--border); cursor: pointer; }
+    .post-item:hover { background: var(--bg-tertiary); }
+    .post-item.active { background: var(--teal-bg); }
+    .post-item img, .post-item .noimg { width: 46px; height: 46px; border-radius: 6px; object-fit: cover; background: var(--bg-tertiary); flex-shrink: 0; }
+    .post-item .cap { font-size: 12px; color: var(--text-primary); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .post-item .meta { font-size: 11px; color: var(--text-tertiary); margin-top: 3px; display: flex; gap: 6px; flex-wrap: wrap; }
+
+    /* 댓글 카드 */
+    .cmt { background: var(--bg-primary); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 12px 14px; margin-bottom: 10px; display: grid; grid-template-columns: 22px 1fr; gap: 10px; }
+    .cmt.done { opacity: 0.6; }
+    .cmt .head { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 4px; }
+    .cmt .user { font-weight: 600; }
+    .cmt .text { white-space: pre-wrap; word-break: break-word; }
+    .cmt .postref { font-size: 11px; color: var(--text-tertiary); margin-top: 6px; }
+    .cmt .actions { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+    .cmt .replybox { margin-top: 8px; }
+    .cmt .myreply { margin-top: 8px; padding: 8px 10px; background: var(--bg-secondary); border-radius: var(--radius-md); font-size: 13px; }
+
+    /* DM */
+    .conv-item { padding: 10px 12px; border-bottom: 0.5px solid var(--border); cursor: pointer; }
+    .conv-item:hover { background: var(--bg-tertiary); }
+    .conv-item.active { background: var(--teal-bg); }
+    .conv-item .top { display: flex; justify-content: space-between; gap: 6px; align-items: center; }
+    .conv-item .name { font-weight: 600; font-size: 13px; }
+    .conv-item .prev { font-size: 12px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+    .conv-item .tags { margin-top: 4px; display: flex; gap: 4px; flex-wrap: wrap; }
+    .thread { display: flex; flex-direction: column; height: 100%; }
+    .thread .thead { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding-bottom: 10px; border-bottom: 0.5px solid var(--border); margin-bottom: 10px; }
+    .thread .msgs { flex: 1; overflow-y: auto; padding: 4px 2px; }
+    .msg { max-width: 72%; padding: 8px 12px; border-radius: 14px; margin-bottom: 6px; white-space: pre-wrap; word-break: break-word; font-size: 13.5px; }
+    .msg.in { background: var(--bg-primary); border: 0.5px solid var(--border); margin-right: auto; }
+    .msg.out { background: var(--teal-bg); color: var(--text-primary); margin-left: auto; }
+    .msg .t { display: block; font-size: 10.5px; color: var(--text-tertiary); margin-top: 3px; }
+    .msg a { color: var(--blue); }
+    .composer { border-top: 0.5px solid var(--border); padding-top: 10px; }
+    .composer textarea { min-height: 60px; }
+    .window-pill { font-size: 12px; padding: 4px 10px; border-radius: 999px; }
+    .window-pill.open { background: var(--teal-bg); color: var(--teal-dark); }
+    .window-pill.closed { background: var(--red-bg); color: var(--red); }
+
+    /* 테이블 */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 0.5px solid var(--border); vertical-align: top; }
+    th { font-size: 12px; color: var(--text-secondary); font-weight: 600; }
+    code { font-family: ui-monospace, Menlo, monospace; font-size: 12px; background: var(--bg-tertiary); padding: 1px 5px; border-radius: 4px; word-break: break-all; }
+    .check { display: flex; gap: 8px; align-items: flex-start; padding: 6px 0; border-bottom: 0.5px solid var(--border); }
+    .check:last-child { border-bottom: 0; }
+    .check .dot { margin-top: 6px; flex-shrink: 0; }
+    .kit-select { max-width: 260px; }
+
+    /* 모달 */
+    .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
+    .modal-bg.on { display: flex; }
+    .modal { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 20px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; }
+    .modal h3 { margin-bottom: 12px; }
+    .preview { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 10px 12px; white-space: pre-wrap; font-size: 13px; margin-bottom: 12px; max-height: 180px; overflow-y: auto; }
+
+    @media (max-width: 860px) {
+      #app.on { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+      .side { flex-direction: row; flex-wrap: wrap; padding: 8px; }
+      .side .brand, .side .me, .side .spacer { display: none; }
+      .split { grid-template-columns: 1fr; grid-template-rows: 220px 1fr; }
+      .pane.left { border-right: 0; border-bottom: 0.5px solid var(--border); }
+      .msg { max-width: 90%; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="login-view">
+  <form class="login-card" id="login-form">
+    <h1>고객 응대 인박스</h1>
+    <p>인스타그램 댓글과 DM을 한 곳에서 응대합니다.</p>
+    <div class="field"><label>이름</label><input id="login-name" placeholder="owner 또는 직원 이름" autocomplete="username" /></div>
+    <div class="field"><label>비밀번호</label><input id="login-pw" type="password" autocomplete="current-password" /></div>
+    <button class="primary" style="width:100%" type="submit">로그인</button>
+    <div class="err" id="login-err"></div>
+  </form>
+</div>
+
+<div id="app">
+  <aside class="side">
+    <div class="brand">응대 인박스</div>
+    <button class="nav active" data-view="comments">댓글 <span class="badge amber" id="nav-open-comments">0</span></button>
+    <button class="nav" data-view="dm">DM <span class="badge amber" id="nav-open-dm">0</span></button>
+    <button class="nav" data-view="kits">자료</button>
+    <button class="nav" data-view="settings">설정</button>
+    <button class="nav" data-view="log">기록</button>
+    <div class="spacer"></div>
+    <div class="health" id="health"><span class="dot"></span><span>상태 확인 중…</span></div>
+    <div class="me"><span id="me-name"></span> · <a href="#" id="logout">로그아웃</a></div>
+  </aside>
+
+  <main class="main">
+    <!-- 댓글 -->
+    <section class="view on" id="view-comments">
+      <div style="display:flex;flex-direction:column;width:100%;height:100%">
+        <div class="topbar">
+          <h2>댓글</h2>
+          <select id="c-status" style="width:auto">
+            <option value="open">미처리</option><option value="done">처리완료</option><option value="all">전체</option>
+          </select>
+          <button id="c-sync">동기화</button>
+          <button class="primary" id="c-bulk-send">선택 댓글에 자료 DM</button>
+        </div>
+        <div class="split">
+          <div class="pane left" id="post-list"></div>
+          <div class="pane right">
+            <div class="row hidden" id="post-kit" style="margin-bottom:10px"></div>
+            <div class="row" style="margin-bottom:10px">
+              <label style="margin:0"><input type="checkbox" id="c-select-sendable" style="width:auto;margin-right:6px" />발송 가능한 댓글 전체 선택</label>
+              <span class="muted" id="c-count"></span>
+            </div>
+            <div id="comment-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DM -->
+    <section class="view" id="view-dm">
+      <div style="display:flex;flex-direction:column;width:100%;height:100%">
+        <div class="topbar">
+          <h2>DM</h2>
+          <select id="d-status" style="width:auto"><option value="open">진행중</option><option value="done">완료</option><option value="all">전체</option></select>
+          <select id="d-filter" style="width:auto">
+            <option value="">전체</option><option value="unread">안 읽음</option><option value="window">답장 가능(24h)</option>
+            <option value="follower">팔로워</option><option value="nonfollower">비팔로워</option><option value="mine">내 담당</option>
+          </select>
+          <button id="d-sync">동기화</button>
+        </div>
+        <div class="split">
+          <div class="pane left" id="conv-list"></div>
+          <div class="pane right" id="thread"><p class="muted">왼쪽에서 대화를 선택하세요.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 자료 -->
+    <section class="view" id="view-kits">
+      <div class="single">
+        <div class="card">
+          <h3 id="kit-form-title">새 자료 만들기</h3>
+          <form id="kit-form">
+            <input type="hidden" id="k-id" />
+            <div class="field"><label>이름 (내부용)</label><input id="k-name" placeholder="예: 영양제 상호작용 정리본" /></div>
+            <div class="field"><label>DM 본문 (링크 포함 가능, 1000자 이내)</label><textarea id="k-text" placeholder="안녕하세요, 요청하신 정리본입니다 😊&#10;https://..."></textarea></div>
+            <div class="row">
+              <div class="field" style="flex:2"><label>첨부 URL (선택, https 공개 URL)</label><input id="k-url" placeholder="https://.../file.pdf" /></div>
+              <div class="field" style="flex:1"><label>첨부 종류</label>
+                <select id="k-type"><option value="">없음</option><option value="file">파일(PDF)</option><option value="image">이미지</option><option value="video">동영상</option><option value="audio">오디오</option></select>
+              </div>
+            </div>
+            <div class="field"><label>요청 키워드 (선택, 쉼표 구분 — 댓글에 이 단어가 있으면 강조)</label><input id="k-keyword" placeholder="정리본, 자료, 보내주세요" /></div>
+            <div class="row"><button class="primary" type="submit">저장</button><button type="button" id="k-cancel" class="hidden">취소</button></div>
+            <p class="muted" style="margin-top:8px">첨부가 설정되면 먼저 첨부로 발송을 시도하고, 실패하면 본문(링크)으로 자동 대체됩니다. 댓글 1건당 1회만 발송되므로 본문에 링크를 꼭 포함하세요.</p>
+          </form>
+        </div>
+        <div class="card"><h3>자료 목록</h3><div id="kit-list"></div></div>
+      </div>
+    </section>
+
+    <!-- 설정 -->
+    <section class="view" id="view-settings">
+      <div class="single">
+        <div class="card">
+          <h3>Instagram 연결</h3>
+          <div id="s-account"></div>
+          <div class="row" style="margin-top:10px">
+            <button class="primary" id="s-connect">Instagram 계정 연결</button>
+            <button id="s-refresh">상태 다시 확인</button>
+          </div>
+        </div>
+        <div class="card"><h3>헬스체크</h3><div id="s-checks"></div></div>
+        <div class="card">
+          <h3>Meta 앱 설정에 입력할 값</h3>
+          <div class="check"><div><div>Business Login 리디렉션 URI</div><code id="s-redirect"></code></div></div>
+          <div class="check"><div><div>웹훅 콜백 URL</div><code id="s-webhook"></code></div></div>
+          <div class="check"><div><div>웹훅 구독 필드</div><code>comments, messages</code></div></div>
+          <p class="muted" style="margin-top:8px">검증 토큰은 Cloudflare 환경변수 <code>IG_WEBHOOK_VERIFY_TOKEN</code> 값과 동일하게 입력합니다.</p>
+        </div>
+        <div class="card" id="s-staff-card">
+          <h3>직원 계정</h3>
+          <div id="staff-list"></div>
+          <form id="staff-form" class="row" style="margin-top:10px">
+            <input id="st-name" placeholder="직원 이름" style="flex:1" />
+            <input id="st-pw" type="password" placeholder="비밀번호 (6자 이상)" style="flex:1" />
+            <button class="primary" type="submit">추가 / 비밀번호 재설정</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- 기록 -->
+    <section class="view" id="view-log">
+      <div class="single"><div class="card"><h3>활동 기록</h3><div id="log-list"></div></div></div>
+    </section>
+  </main>
+</div>
+
+<!-- 자료 발송 모달 -->
+<div class="modal-bg" id="send-modal">
+  <div class="modal">
+    <h3>자료 DM 발송</h3>
+    <p class="muted" id="send-summary"></p>
+    <div class="field" style="margin-top:10px"><label>보낼 자료</label><select id="send-kit"></select></div>
+    <div class="preview" id="send-preview"></div>
+    <p class="muted">댓글 1건당 1회만 발송되며 되돌릴 수 없습니다. 7일이 지난 댓글은 자동으로 제외됩니다.</p>
+    <div class="row" style="margin-top:12px;justify-content:flex-end">
+      <button id="send-cancel">취소</button>
+      <button class="primary" id="send-go">발송</button>
+    </div>
+    <div id="send-result" style="margin-top:12px"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  const $ = (s, el = document) => el.querySelector(s);
+  const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+  const state = { me: null, view: 'comments', media: [], mediaId: '', comments: [], convs: [], conv: null, kits: [], status: null, selected: new Set(), timer: null };
+
+  // ── 유틸 ──
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const linkify = (s) => esc(s).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+  const fmt = (ms) => ms ? new Date(ms).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+  const rel = (ms) => {
+    if (!ms) return '';
+    const d = Date.now() - ms;
+    if (d < 60e3) return '방금';
+    if (d < 3600e3) return `${Math.floor(d / 60e3)}분 전`;
+    if (d < 86400e3) return `${Math.floor(d / 3600e3)}시간 전`;
+    return `${Math.floor(d / 86400e3)}일 전`;
+  };
+  const toast = (m, ms = 2600) => { const t = $('#toast'); t.textContent = m; t.classList.add('on'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('on'), ms); };
+  async function api(path, opt = {}) {
+    const res = await fetch(`/api/ig/${path}`, { headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', ...opt, body: opt.body ? JSON.stringify(opt.body) : undefined });
+    const data = await res.json().catch(() => ({ ok: false, error: `HTTP ${res.status}` }));
+    if (res.status === 401 && data.code === 'unauthenticated') { showLogin(); throw new Error('로그인이 필요합니다.'); }
+    if (!res.ok || data.ok === false) throw Object.assign(new Error(data.error || `HTTP ${res.status}`), { data });
+    return data;
+  }
+  const SEVEN = 7 * 86400e3, DAY = 86400e3;
+  const sendable = (c) => !c.is_mine && !c.private_reply_sent_at && Date.now() - c.timestamp < SEVEN;
+  const daysLeft = (c) => Math.max(0, Math.ceil((c.timestamp + SEVEN - Date.now()) / DAY));
+
+  // ── 로그인 ──
+  function showLogin() { $('#login-view').style.display = 'flex'; $('#app').classList.remove('on'); clearInterval(state.timer); }
+  function showApp() { $('#login-view').style.display = 'none'; $('#app').classList.add('on'); $('#me-name').textContent = `${state.me.name} (${state.me.role === 'owner' ? '관리자' : '직원'})`; if (state.me.role !== 'owner') { $('#s-staff-card').classList.add('hidden'); $('#s-connect').classList.add('hidden'); } }
+  $('#login-form').addEventListener('submit', async (e) => {
+    e.preventDefault(); $('#login-err').textContent = '';
+    try {
+      const d = await api('auth/login', { method: 'POST', body: { name: $('#login-name').value, password: $('#login-pw').value } });
+      state.me = d; showApp(); boot();
+    } catch (err) { $('#login-err').textContent = err.message; }
+  });
+  $('#logout').addEventListener('click', async (e) => { e.preventDefault(); await api('auth/logout', { method: 'POST' }).catch(() => {}); showLogin(); });
+
+  // ── 네비 ──
+  $$('.nav').forEach((b) => b.addEventListener('click', () => switchView(b.dataset.view)));
+  function switchView(v) {
+    state.view = v;
+    $$('.nav').forEach((b) => b.classList.toggle('active', b.dataset.view === v));
+    $$('.view').forEach((s) => s.classList.toggle('on', s.id === `view-${v}`));
+    ({ comments: loadComments, dm: loadConvs, kits: loadKits, settings: loadStatus, log: loadLog })[v]();
+  }
+
+  async function boot() {
+    const u = new URL(location.href);
+    if (u.searchParams.get('connected')) { toast('Instagram 계정이 연결되었습니다.'); history.replaceState(null, '', '/inbox.html'); switchView('settings'); }
+    else if (u.searchParams.get('connect_error')) { alert('연결 실패: ' + u.searchParams.get('connect_error')); history.replaceState(null, '', '/inbox.html'); switchView('settings'); }
+    else switchView('comments');
+    loadStatus(true); loadKits(true);
+    clearInterval(state.timer);
+    state.timer = setInterval(() => { if (document.hidden) return; if (state.view === 'comments') loadComments(); if (state.view === 'dm') { loadConvs(); if (state.conv) openConv(state.conv, true); } loadStatus(true); }, 60e3);
+  }
+
+  // ── 상태 ──
+  async function loadStatus(quiet) {
+    try {
+      const s = await api('status'); state.status = s;
+      $('#nav-open-comments').textContent = s.counts.open_comments; $('#nav-open-dm').textContent = s.counts.open_conversations;
+      const h = $('#health'); const dot = h.querySelector('.dot'); const txt = h.querySelector('span:last-child');
+      if (!s.connected) { dot.className = 'dot bad'; txt.textContent = '계정 미연결'; }
+      else if (s.checks.api && !s.checks.api.ok) { dot.className = 'dot bad'; txt.textContent = 'API 오류'; }
+      else if (s.checks.messaging && !s.checks.messaging.ok) { dot.className = 'dot warn'; txt.textContent = 'DM 접근 불가'; }
+      else if (s.account && s.account.token_days_left != null && s.account.token_days_left < 7) { dot.className = 'dot warn'; txt.textContent = `토큰 ${s.account.token_days_left}일 남음`; }
+      else { dot.className = 'dot ok'; txt.textContent = `@${s.account.username || ''} 연결됨`; }
+      if (!quiet || state.view === 'settings') renderSettings(s);
+    } catch (e) { if (!quiet) toast(e.message); }
+  }
+  function renderSettings(s) {
+    const o = location.origin;
+    $('#s-redirect').textContent = `${o}/api/ig/callback`; $('#s-webhook').textContent = `${o}/api/ig/webhook`;
+    const a = s.account;
+    $('#s-account').innerHTML = a
+      ? `<div class="row"><span class="badge teal">연결됨</span><b>@${esc(a.username || a.ig_user_id)}</b><span class="muted">ID ${esc(a.ig_user_id)}</span></div>
+         <div class="muted" style="margin-top:6px">연결 ${fmt(a.connected_at)} · 토큰 만료까지 ${a.token_days_left ?? '?'}일 (자동 갱신) · 웹훅 구독: ${esc(a.webhook_fields || '미구독')}</div>
+         <div class="muted">허용 권한: ${esc((s.granted_permissions || []).join(', ') || '-')}</div>`
+      : `<span class="badge red">미연결</span> <span class="muted">아래 버튼으로 Instagram 프로페셔널 계정을 연결하세요.</span>`;
+    const rows = [];
+    const chk = (ok, label, detail) => rows.push(`<div class="check"><span class="dot ${ok === null ? '' : ok ? 'ok' : 'bad'}"></span><div><div>${label}</div>${detail ? `<div class="muted">${detail}</div>` : ''}</div></div>`);
+    chk(s.env.app_id_set && s.env.app_secret_set, 'Cloudflare 환경변수 IG_APP_ID / IG_APP_SECRET', s.env.app_id_set && s.env.app_secret_set ? '설정됨' : '설정 필요');
+    chk(s.webhook.verify_token_set, '환경변수 IG_WEBHOOK_VERIFY_TOKEN', s.webhook.verify_token_set ? '설정됨' : '설정 필요');
+    chk(s.env.admin_password_set, '환경변수 INBOX_ADMIN_PASSWORD', '');
+    chk(s.connected, 'Instagram 계정 연결', '');
+    if (s.connected) {
+      chk(s.checks.api && s.checks.api.ok, 'Instagram API 응답', s.checks.api && s.checks.api.ok ? `@${esc(s.checks.api.username)}` : esc(s.checks.api && s.checks.api.error));
+      chk(s.checks.messaging && s.checks.messaging.ok, 'DM 접근 (메시지 접근 허용 토글)', s.checks.messaging && s.checks.messaging.ok ? '정상' : `실패 — 인스타그램 앱 › 설정 › 개인정보 보호 › 메시지 › 연결된 도구 › "메시지 접근 허용" 을 켜세요. (${esc(s.checks.messaging && s.checks.messaging.error)})`);
+      chk(!!s.account.webhook_fields, '웹훅 구독', s.account.webhook_fields ? s.account.webhook_fields : esc(s.webhook.subscribe_error && s.webhook.subscribe_error.message || '구독 실패 — 계정을 다시 연결하세요.'));
+      chk(s.webhook.last_event_at ? true : null, '웹훅 최근 수신', s.webhook.last_event_at ? `${rel(s.webhook.last_event_at)} (댓글 ${rel(s.webhook.last_comment_at) || '없음'}, DM ${rel(s.webhook.last_message_at) || '없음'})` : '아직 수신 없음 — 테스트 댓글을 달아 확인하세요.');
+      if (s.token_refresh_error) chk(false, '토큰 자동 갱신 오류', esc(JSON.stringify(s.token_refresh_error.data).slice(0, 200)));
+    }
+    $('#s-checks').innerHTML = rows.join('');
+    if (state.me.role === 'owner') loadStaff();
+  }
+  $('#s-connect').addEventListener('click', () => { location.href = '/api/ig/connect'; });
+  $('#s-refresh').addEventListener('click', () => loadStatus(false));
+
+  // ── 직원 ──
+  async function loadStaff() {
+    const d = await api('staff');
+    $('#staff-list').innerHTML = d.staff.length ? `<table><tr><th>이름</th><th>상태</th><th></th></tr>${d.staff.map((s) => `<tr><td>${esc(s.name)}</td><td>${s.active ? '<span class="badge teal">활성</span>' : '<span class="badge gray">비활성</span>'}</td><td><button class="sm" data-toggle="${esc(s.name)}" data-active="${s.active}">${s.active ? '비활성화' : '활성화'}</button></td></tr>`).join('')}</table>` : '<p class="muted">등록된 직원이 없습니다.</p>';
+    $$('#staff-list [data-toggle]').forEach((b) => b.addEventListener('click', async () => { await api('staff', { method: 'PATCH', body: { name: b.dataset.toggle, active: b.dataset.active !== '1' } }); loadStaff(); }));
+  }
+  $('#staff-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try { await api('staff', { method: 'POST', body: { name: $('#st-name').value, password: $('#st-pw').value } }); $('#st-name').value = ''; $('#st-pw').value = ''; toast('저장되었습니다.'); loadStaff(); } catch (err) { toast(err.message); }
+  });
+
+  // ── 자료(킷) ──
+  async function loadKits(quiet) {
+    try {
+      const d = await api('kits'); state.kits = d.kits;
+      if (!quiet || state.view === 'kits') renderKits();
+    } catch (e) { if (!quiet) toast(e.message); }
+  }
+  function renderKits() {
+    $('#kit-list').innerHTML = state.kits.length ? `<table><tr><th>이름</th><th>본문</th><th>첨부</th><th>발송</th><th></th></tr>${state.kits.map((k) => `<tr><td><b>${esc(k.name)}</b>${k.keyword ? `<div class="muted">키워드: ${esc(k.keyword)}</div>` : ''}</td><td style="white-space:pre-wrap;max-width:360px">${esc(k.text)}</td><td>${k.attachment_url ? `<span class="badge blue">${esc(k.attachment_type)}</span>` : '-'}</td><td>${k.sent_count}회</td><td class="row"><button class="sm" data-edit="${k.id}">수정</button>${state.me.role === 'owner' ? `<button class="sm danger" data-del="${k.id}">삭제</button>` : ''}</td></tr>`).join('')}</table>` : '<p class="muted">아직 자료가 없습니다. 위에서 만들어 주세요.</p>';
+    $$('#kit-list [data-edit]').forEach((b) => b.addEventListener('click', () => {
+      const k = state.kits.find((x) => x.id == b.dataset.edit); if (!k) return;
+      $('#k-id').value = k.id; $('#k-name').value = k.name; $('#k-text').value = k.text; $('#k-url').value = k.attachment_url || ''; $('#k-type').value = k.attachment_type || ''; $('#k-keyword').value = k.keyword || '';
+      $('#kit-form-title').textContent = `자료 수정: ${k.name}`; $('#k-cancel').classList.remove('hidden'); window.scrollTo(0, 0);
+    }));
+    $$('#kit-list [data-del]').forEach((b) => b.addEventListener('click', async () => { if (!confirm('이 자료를 삭제할까요?')) return; await api(`kits?id=${b.dataset.del}`, { method: 'DELETE' }); loadKits(); }));
+  }
+  function resetKitForm() { $('#kit-form').reset(); $('#k-id').value = ''; $('#kit-form-title').textContent = '새 자료 만들기'; $('#k-cancel').classList.add('hidden'); }
+  $('#k-cancel').addEventListener('click', resetKitForm);
+  $('#kit-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const body = { id: $('#k-id').value || undefined, name: $('#k-name').value, text: $('#k-text').value, attachment_url: $('#k-url').value, attachment_type: $('#k-type').value, keyword: $('#k-keyword').value };
+    try { await api('kits', { method: body.id ? 'PUT' : 'POST', body }); toast('저장되었습니다.'); resetKitForm(); loadKits(); } catch (err) { toast(err.message, 4000); }
+  });
+
+  // ── 댓글 ──
+  async function loadMedia(sync) {
+    const d = await api(`media${sync ? '?sync=1' : ''}`); state.media = d.media; renderPosts();
+  }
+  function renderPosts() {
+    const all = state.media;
+    const sumOpen = all.reduce((n, m) => n + (m.open_comments || 0), 0);
+    const sumSend = all.reduce((n, m) => n + (m.sendable_comments || 0), 0);
+    const item = (m, active) => `<div class="post-item ${active ? 'active' : ''}" data-id="${esc(m.id)}">
+      ${m.thumbnail_url || (m.media_type === 'IMAGE' && m.media_url) ? `<img src="${esc(m.thumbnail_url || m.media_url)}" loading="lazy" referrerpolicy="no-referrer" />` : '<div class="noimg"></div>'}
+      <div style="min-width:0"><div class="cap">${esc(m.caption || '(캡션 없음)')}</div>
+      <div class="meta"><span>${fmt(m.timestamp)}</span>${m.open_comments ? `<span class="badge amber">미처리 ${m.open_comments}</span>` : ''}${m.sendable_comments ? `<span class="badge purple">발송가능 ${m.sendable_comments}</span>` : ''}${m.dm_kit_name ? `<span class="badge blue">자료: ${esc(m.dm_kit_name)}</span>` : ''}</div></div></div>`;
+    $('#post-list').innerHTML = `<div class="post-item ${!state.mediaId ? 'active' : ''}" data-id=""><div class="noimg" style="display:flex;align-items:center;justify-content:center;font-size:18px">∑</div><div><div class="cap"><b>전체 게시물</b></div><div class="meta">${sumOpen ? `<span class="badge amber">미처리 ${sumOpen}</span>` : ''}${sumSend ? `<span class="badge purple">발송가능 ${sumSend}</span>` : ''}</div></div></div>` + all.map((m) => item(m, m.id === state.mediaId)).join('');
+    $$('#post-list .post-item').forEach((el) => el.addEventListener('click', () => { state.mediaId = el.dataset.id; state.selected.clear(); renderPosts(); loadComments(); }));
+  }
+  async function loadComments(sync) {
+    try {
+      if (!state.media.length || sync) await loadMedia(sync);
+      const q = new URLSearchParams({ status: $('#c-status').value });
+      if (state.mediaId) q.set('media_id', state.mediaId);
+      if (sync) q.set('sync', '1');
+      const d = await api(`comments?${q}`); state.comments = d.comments; renderPostKit(); renderComments();
+      if (sync) { toast('동기화 완료'); loadStatus(true); }
+    } catch (e) { toast(e.message, 4000); }
+  }
+  function renderPostKit() {
+    const box = $('#post-kit'); const m = state.media.find((x) => x.id === state.mediaId);
+    if (!m) { box.classList.add('hidden'); return; }
+    box.classList.remove('hidden');
+    box.innerHTML = `<span class="muted">이 게시물의 기본 자료:</span><select id="pk-select" style="width:auto"><option value="">없음</option>${state.kits.map((k) => `<option value="${k.id}" ${m.dm_kit_id == k.id ? 'selected' : ''}>${esc(k.name)}</option>`).join('')}</select>${m.permalink ? `<a class="muted" href="${esc(m.permalink)}" target="_blank" rel="noopener">게시물 열기</a>` : ''}`;
+    $('#pk-select').addEventListener('change', async (e) => { await api('media', { method: 'PATCH', body: { id: m.id, dm_kit_id: e.target.value ? Number(e.target.value) : null } }); toast('기본 자료를 저장했습니다.'); loadMedia(); });
+  }
+  function kitKeywords() { return state.kits.flatMap((k) => (k.keyword || '').split(',').map((s) => s.trim()).filter(Boolean)); }
+  function renderComments() {
+    const kw = kitKeywords();
+    const list = state.comments;
+    $('#c-count').textContent = `${list.length}건 · 발송 가능 ${list.filter(sendable).length}건 · 선택 ${state.selected.size}건`;
+    if (!list.length) { $('#comment-list').innerHTML = '<p class="muted">표시할 댓글이 없습니다. 오른쪽 위 [동기화]로 최근 댓글을 가져올 수 있습니다.</p>'; return; }
+    $('#comment-list').innerHTML = list.map((c) => {
+      const hit = kw.some((k) => (c.text || '').includes(k));
+      const canSend = sendable(c);
+      const pr = c.private_reply_sent_at ? `<span class="badge teal">자료 발송됨 · ${esc(c.private_reply_by || '')} ${rel(c.private_reply_sent_at)}</span>` : canSend ? `<span class="badge purple">DM 발송 가능 D-${daysLeft(c)}</span>` : `<span class="badge gray">7일 경과 (발송 불가)</span>`;
+      return `<div class="cmt ${c.status === 'done' ? 'done' : ''}" data-id="${esc(c.id)}">
+        <div><input type="checkbox" class="sel" ${canSend ? '' : 'disabled'} ${state.selected.has(c.id) ? 'checked' : ''} style="width:auto;margin-top:4px" /></div>
+        <div style="min-width:0">
+          <div class="head"><span class="user">@${esc(c.from_username || c.from_user_id || '?')}</span><span class="muted">${rel(c.timestamp)} · ${fmt(c.timestamp)}</span>${c.parent_id ? '<span class="badge gray">답글</span>' : ''}${hit ? '<span class="badge amber">자료 요청?</span>' : ''}${pr}${c.status === 'done' ? `<span class="badge gray">완료${c.handled_by ? ' · ' + esc(c.handled_by) : ''}</span>` : ''}</div>
+          <div class="text">${linkify(c.text)}</div>
+          ${!state.mediaId && c.media_caption != null ? `<div class="postref">게시물: ${esc((c.media_caption || '').slice(0, 60))}${c.media_permalink ? ` · <a href="${esc(c.media_permalink)}" target="_blank" rel="noopener">열기</a>` : ''}</div>` : ''}
+          ${c.my_last_reply ? `<div class="myreply">↳ 내 답글: ${esc(c.my_last_reply)}</div>` : ''}
+          <div class="actions">
+            <button class="sm" data-act="reply">답글</button>
+            <button class="sm" data-act="send" ${canSend ? '' : 'disabled'}>자료 DM</button>
+            ${c.status === 'done' ? '<button class="sm" data-act="reopen">미처리로</button>' : '<button class="sm" data-act="done">완료</button>'}
+            <button class="sm" data-act="hide">숨기기</button>
+          </div>
+          <div class="replybox hidden"><textarea placeholder="공개 답글 내용"></textarea><div class="row" style="margin-top:6px"><button class="sm primary" data-act="reply-send">답글 달기</button><button class="sm" data-act="reply-cancel">취소</button></div></div>
+        </div></div>`;
+    }).join('');
+    $$('#comment-list .cmt').forEach((el) => {
+      const id = el.dataset.id; const c = state.comments.find((x) => x.id === id);
+      el.querySelector('.sel').addEventListener('change', (e) => { e.target.checked ? state.selected.add(id) : state.selected.delete(id); $('#c-count').textContent = `${list.length}건 · 발송 가능 ${list.filter(sendable).length}건 · 선택 ${state.selected.size}건`; });
+      el.addEventListener('click', async (e) => {
+        const act = e.target.dataset && e.target.dataset.act; if (!act) return;
+        const box = el.querySelector('.replybox');
+        if (act === 'reply') box.classList.toggle('hidden');
+        if (act === 'reply-cancel') box.classList.add('hidden');
+        if (act === 'reply-send') {
+          const text = box.querySelector('textarea').value.trim(); if (!text) return;
+          e.target.disabled = true;
+          try { await api('comments/reply', { method: 'POST', body: { comment_id: id, text } }); toast('답글을 달았습니다.'); loadComments(); } catch (err) { toast(err.message, 5000); e.target.disabled = false; }
+        }
+        if (act === 'done' || act === 'reopen') { await api('comments', { method: 'PATCH', body: { id, status: act === 'done' ? 'done' : 'open' } }); loadComments(); loadStatus(true); }
+        if (act === 'hide') { if (!confirm('이 댓글을 인스타그램에서 숨길까요?')) return; try { await api('comments/reply', { method: 'PATCH', body: { comment_id: id, hide: true } }); toast('숨김 처리했습니다.'); } catch (err) { toast(err.message, 5000); } }
+        if (act === 'send') openSendModal([c]);
+      });
+    });
+  }
+  $('#c-status').addEventListener('change', () => { state.selected.clear(); loadComments(); });
+  $('#c-sync').addEventListener('click', () => loadComments(true));
+  $('#c-select-sendable').addEventListener('change', (e) => { state.selected.clear(); if (e.target.checked) state.comments.filter(sendable).forEach((c) => state.selected.add(c.id)); renderComments(); });
+  $('#c-bulk-send').addEventListener('click', () => { const cs = state.comments.filter((c) => state.selected.has(c.id) && sendable(c)); if (!cs.length) return toast('발송 가능한 댓글을 선택하세요.'); openSendModal(cs); });
+
+  // ── 자료 발송 모달 ──
+  let sendTargets = [];
+  function openSendModal(cs) {
+    sendTargets = cs;
+    if (!state.kits.length) { alert('먼저 [자료] 탭에서 보낼 자료를 만들어 주세요.'); return; }
+    const defKit = cs[0].media_kit_id || (state.media.find((m) => m.id === cs[0].media_id) || {}).dm_kit_id || state.kits[0].id;
+    $('#send-kit').innerHTML = state.kits.map((k) => `<option value="${k.id}" ${k.id == defKit ? 'selected' : ''}>${esc(k.name)}${k.attachment_url ? ' (첨부)' : ''}</option>`).join('');
+    $('#send-summary').textContent = `${cs.length}명에게 발송: ${cs.slice(0, 5).map((c) => '@' + (c.from_username || c.from_user_id)).join(', ')}${cs.length > 5 ? ' 외 ' + (cs.length - 5) + '명' : ''}`;
+    updatePreview(); $('#send-result').innerHTML = ''; $('#send-go').disabled = false; $('#send-modal').classList.add('on');
+  }
+  function updatePreview() { const k = state.kits.find((x) => x.id == $('#send-kit').value); $('#send-preview').textContent = k ? k.text + (k.attachment_url ? `\n\n[첨부: ${k.attachment_type}] ${k.attachment_url}` : '') : ''; }
+  $('#send-kit').addEventListener('change', updatePreview);
+  $('#send-cancel').addEventListener('click', () => $('#send-modal').classList.remove('on'));
+  $('#send-go').addEventListener('click', async () => {
+    const kitId = Number($('#send-kit').value);
+    if (!confirm(`${sendTargets.length}명에게 자료 DM을 발송합니다. 계속할까요?`)) return;
+    $('#send-go').disabled = true; $('#send-result').innerHTML = '<p class="muted">발송 중…</p>';
+    try {
+      const d = await api('comments/private-reply', { method: 'POST', body: { comment_ids: sendTargets.map((c) => c.id), kit_id: kitId } });
+      const fails = d.results.filter((r) => !r.ok);
+      $('#send-result').innerHTML = `<p><b>성공 ${d.sent}건</b>${d.failed ? ` · 실패 ${d.failed}건` : ''}${d.results.some((r) => r.attachment_fallback) ? ' · 일부는 첨부 대신 본문(링크)으로 발송됨' : ''}</p>${fails.length ? `<ul style="margin:6px 0 0 18px;font-size:12px;color:var(--red)">${fails.map((r) => `<li>${esc(r.id)}: ${esc(r.reason)}</li>`).join('')}</ul>` : ''}<div class="row" style="justify-content:flex-end;margin-top:10px"><button class="sm" id="send-close">닫기</button></div>`;
+      $('#send-close').addEventListener('click', () => $('#send-modal').classList.remove('on'));
+      state.selected.clear(); $('#c-select-sendable').checked = false; loadComments(); loadKits(true); loadStatus(true);
+    } catch (err) { $('#send-result').innerHTML = `<p style="color:var(--red)">${esc(err.message)}</p>`; $('#send-go').disabled = false; }
+  });
+
+  // ── DM ──
+  async function loadConvs(sync) {
+    try {
+      const q = new URLSearchParams({ status: $('#d-status').value, filter: $('#d-filter').value });
+      if (sync) q.set('sync', '1');
+      const d = await api(`conversations?${q}`); state.convs = d.conversations; renderConvs();
+      if (sync) { toast('동기화 완료'); loadStatus(true); }
+    } catch (e) { toast(e.message, 4000); }
+  }
+  const windowLeft = (c) => c.last_inbound_at ? c.last_inbound_at + DAY - Date.now() : -1;
+  const hm = (ms) => `${Math.floor(ms / 3600e3)}시간 ${Math.floor((ms % 3600e3) / 60e3)}분`;
+  function renderConvs() {
+    if (!state.convs.length) { $('#conv-list').innerHTML = '<p class="muted" style="padding:14px">대화가 없습니다. [동기화]로 최근 DM을 가져올 수 있습니다.</p>'; return; }
+    $('#conv-list').innerHTML = state.convs.map((c) => {
+      const w = windowLeft(c);
+      return `<div class="conv-item ${state.conv === c.participant_id ? 'active' : ''}" data-id="${esc(c.participant_id)}">
+        <div class="top"><span class="name">@${esc(c.participant_username || c.participant_id)}</span><span class="muted">${rel(c.last_message_at)}</span></div>
+        <div class="prev">${esc(c.last_text || '')}</div>
+        <div class="tags">${c.unread ? `<span class="badge amber">안 읽음 ${c.unread}</span>` : ''}${w > 0 ? `<span class="badge teal">답장 가능 ${hm(w)}</span>` : '<span class="badge gray">답장 불가</span>'}${c.is_follower === 1 ? '<span class="badge blue">팔로워</span>' : c.is_follower === 0 ? '<span class="badge gray">비팔로워</span>' : ''}${c.assigned_to ? `<span class="badge purple">${esc(c.assigned_to)}</span>` : ''}${c.status === 'done' ? '<span class="badge gray">완료</span>' : ''}</div></div>`;
+    }).join('');
+    $$('#conv-list .conv-item').forEach((el) => el.addEventListener('click', () => openConv(el.dataset.id)));
+  }
+  async function openConv(pid, silent) {
+    state.conv = pid;
+    if (!silent) renderConvs();
+    try {
+      const d = await api(`conversations?participant_id=${encodeURIComponent(pid)}`);
+      const c = d.conversation; const w = windowLeft(c);
+      const keep = silent && $('#thread textarea') ? $('#thread textarea').value : '';
+      $('#thread').innerHTML = `<div class="thread">
+        <div class="thead"><b>@${esc(c.participant_username || c.participant_id)}</b>
+          <span class="window-pill ${w > 0 ? 'open' : 'closed'}">${w > 0 ? `답장 가능 · ${hm(w)} 남음` : '답장 불가 · 상대가 먼저 메시지를 보내야 합니다'}</span>
+          ${c.is_follower === 1 ? '<span class="badge blue">팔로워</span>' : c.is_follower === 0 ? '<span class="badge gray">비팔로워</span>' : ''}
+          <span style="margin-left:auto"></span>
+          <select id="t-assign" style="width:auto" class="sm"><option value="">담당 없음</option>${[state.me.name, ...(state.status && state.status.counts ? [] : [])].map((n) => `<option ${c.assigned_to === n ? 'selected' : ''}>${esc(n)}</option>`).join('')}${c.assigned_to && c.assigned_to !== state.me.name ? `<option selected>${esc(c.assigned_to)}</option>` : ''}</select>
+          <button class="sm" id="t-done">${c.status === 'done' ? '진행중으로' : '완료'}</button>
+        </div>
+        <div class="msgs" id="t-msgs">${d.messages.map((m) => `<div class="msg ${m.direction}">${linkify(m.text || '')}${m.attachments ? `<div class="muted">📎 ${esc(attSummary(m.attachments))}</div>` : ''}<span class="t">${fmt(m.timestamp)}${m.sent_by ? ' · ' + esc(m.sent_by) : ''}</span></div>`).join('') || '<p class="muted">메시지가 없습니다.</p>'}</div>
+        <div class="composer">
+          <div class="row" style="margin-bottom:6px"><select id="t-kit" class="kit-select" style="width:auto"><option value="">자료 끼워넣기…</option>${state.kits.map((k) => `<option value="${k.id}">${esc(k.name)}</option>`).join('')}</select><input id="t-note" placeholder="내부 메모 (상대에게 안 보임)" value="${esc(c.note || '')}" style="flex:1" /></div>
+          <textarea id="t-text" placeholder="${w > 0 ? '메시지 입력…' : '24시간 윈도우가 닫혀 전송이 실패할 수 있습니다.'}">${esc(keep)}</textarea>
+          <div class="row" style="margin-top:6px;justify-content:flex-end"><span class="muted" style="margin-right:auto">${esc(state.me.name)} 이름으로 기록됩니다 (인스타에는 내 계정으로 표시)</span><button class="primary" id="t-send">전송</button></div>
+        </div></div>`;
+      const box = $('#t-msgs'); box.scrollTop = box.scrollHeight;
+      $('#t-kit').addEventListener('change', (e) => { const k = state.kits.find((x) => x.id == e.target.value); if (k) { $('#t-text').value = ($('#t-text').value ? $('#t-text').value + '\n' : '') + k.text; } e.target.value = ''; });
+      $('#t-send').addEventListener('click', async () => {
+        const text = $('#t-text').value.trim(); if (!text) return;
+        $('#t-send').disabled = true;
+        try { await api('messages/send', { method: 'POST', body: { participant_id: pid, text } }); $('#t-text').value = ''; openConv(pid, true); loadConvs(); }
+        catch (err) { alert((err.message || '') + (err.data && err.data.hint ? '\n\n' + err.data.hint : '')); $('#t-send').disabled = false; }
+      });
+      $('#t-done').addEventListener('click', async () => { await api('conversations', { method: 'PATCH', body: { participant_id: pid, status: c.status === 'done' ? 'open' : 'done' } }); loadConvs(); openConv(pid, true); loadStatus(true); });
+      $('#t-assign').addEventListener('change', async (e) => { await api('conversations', { method: 'PATCH', body: { participant_id: pid, assigned_to: e.target.value } }); loadConvs(); });
+      $('#t-note').addEventListener('change', async (e) => { await api('conversations', { method: 'PATCH', body: { participant_id: pid, note: e.target.value } }); toast('메모 저장'); });
+      const item = state.convs.find((x) => x.participant_id === pid); if (item) item.unread = 0; renderConvs();
+    } catch (e) { toast(e.message, 4000); }
+  }
+  function attSummary(json) { try { const a = JSON.parse(json); return a.map((x) => x.type || (x.image_data ? 'image' : x.video_data ? 'video' : x.file_url ? 'file' : '첨부')).join(', '); } catch (_) { return '첨부'; } }
+  $('#d-status').addEventListener('change', () => loadConvs());
+  $('#d-filter').addEventListener('change', () => loadConvs());
+  $('#d-sync').addEventListener('click', () => loadConvs(true));
+
+  // ── 기록 ──
+  async function loadLog() {
+    try {
+      const d = await api('log?limit=200');
+      const names = { login: '로그인', connect_instagram: 'Instagram 연결', sync_media: '게시물 동기화', sync_comments: '댓글 동기화', sync_conversations: 'DM 동기화', comment_reply: '댓글 답글', comment_done: '댓글 완료', comment_reopen: '댓글 미처리', comment_hide: '댓글 숨김', private_reply: '자료 DM 발송', dm_send: 'DM 전송', conversation_update: '대화 상태 변경', kit_create: '자료 생성', kit_update: '자료 수정', kit_delete: '자료 삭제', staff_upsert: '직원 등록', staff_enable: '직원 활성화', staff_disable: '직원 비활성화', set_media_kit: '게시물 자료 지정' };
+      $('#log-list').innerHTML = d.log.length ? `<table><tr><th>시각</th><th>누가</th><th>무엇을</th><th>내용</th></tr>${d.log.map((l) => `<tr><td class="muted">${fmt(l.created_at)}</td><td>${esc(l.staff_name || '')}</td><td>${esc(names[l.action] || l.action)}</td><td class="muted">${esc(l.target_id || '')} ${esc(l.detail || '')}</td></tr>`).join('')}</table>` : '<p class="muted">기록이 없습니다.</p>';
+    } catch (e) { toast(e.message); }
+  }
+
+  // ── 시작 ──
+  (async () => {
+    try { state.me = await api('auth/me'); showApp(); boot(); } catch (_) { showLogin(); }
+  })();
+})();
+</script>
+</body>
+</html>

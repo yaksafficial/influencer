@@ -22,8 +22,20 @@ influencer/
 ├── study-curriculum.html     ← 스터디 커리큘럼 안내 페이지
 ├── study-skills-practice.html← 스킬 실습 가이드 (수업 자료)
 ├── dashboard.html            ← 공구 매출 대시보드 (API 직접 호출)
+├── inbox.html                ← 고객 응대 인박스 (인스타 댓글/DM 응대, 자료 DM 발송)
+├── db/schema.sql             ← 인박스용 Cloudflare D1 스키마
+├── wrangler.toml             ← Pages 설정 + D1 바인딩(DB)
 ├── functions/
-│   └── api/[[path]].js       ← Cloudflare Pages CORS 프록시
+│   ├── api/[[path]].js       ← Cloudflare Pages CORS 프록시
+│   └── api/ig/               ← 인박스 백엔드 (Instagram API with Instagram Login)
+│       ├── _lib.js           ← 공용: 세션, 비밀번호 해시, IG API 클라이언트, 토큰 갱신
+│       ├── _middleware.js    ← 세션 검사 (webhook/callback/login 제외)
+│       ├── webhook.js        ← Meta 웹훅 수신 (서명 검증, comments/messages → D1)
+│       ├── connect.js, callback.js ← Business Login OAuth (장기 토큰, 웹훅 구독)
+│       ├── status.js         ← 헬스체크 (토큰 만료, API, DM 접근, 웹훅 수신)
+│       ├── media.js, comments.js, comments/reply.js, comments/private-reply.js
+│       ├── conversations.js, messages/send.js
+│       └── kits.js, staff.js, log.js, auth/*
 ├── event-prompt.md           ← 당첨자폼 상세 스펙 (참조용)
 ├── CLAUDE.md                 ← 이 파일
 ├── PLAN.md                   ← 프로젝트 플랜
@@ -48,6 +60,7 @@ influencer/
 - **단일 파일 유지**: 각 페이지는 HTML 하나에 CSS + JS 포함. 외부 파일 분리 금지.
 - **빌드 없음**: 정적 호스팅. Cloudflare Pages 배포.
 - **토큰/키 하드코딩 금지**: 사용자가 UI에서 로그인 또는 직접 입력. localStorage에 저장.
+  - 예외: `inbox.html` 은 직원과 데이터를 공유해야 하므로 서버(Pages Functions + D1)를 사용. 비밀값은 Cloudflare 환경변수(`IG_APP_ID`, `IG_APP_SECRET`, `IG_WEBHOOK_VERIFY_TOKEN`, `INBOX_ADMIN_PASSWORD`)에만 둔다.
 - **CSS 변수 사용**: 테마 색상은 `--accent` (RGB), `--accent-hex` (HEX) 변수 사용.
 - **pseudo-element 사용 금지**: html2canvas 호환성 문제로 실제 DOM 요소 사용 (`.calendar-bg`, `.week-line`, `.date-circle`).
 
@@ -82,6 +95,15 @@ influencer/
 - 호스트 3명 + 게스트 6명 (최대 9명)
 - 오프라인 1시간 미팅 + 과제 수행 방식
 - 하단 CTA로 신청 폼(study.html) 연결
+
+### inbox.html (고객 응대 인박스)
+- Instagram API with Instagram Login (Facebook 페이지 불필요). 권한: `instagram_business_basic`, `instagram_business_manage_comments`, `instagram_business_manage_messages`
+- 댓글 인박스: 게시물별 댓글 조회, 공개 답글, 숨기기, 처리 상태. 웹훅 실시간 + [동기화] 버튼
+- 자료 DM: 댓글 작성자에게 Private Reply 로 자료(킷) 발송. **댓글당 1회, 작성 후 7일 이내** (Meta 강제). 첨부 시도 후 실패하면 본문(링크)으로 대체
+- DM 인박스: 대화 목록/스레드/전송. 인스타 앱의 1차/일반/요청 폴더는 API가 제공하지 않으므로 자체 필터(안 읽음·24h 답장 가능·팔로워·담당) 사용. 24시간 윈도우 타이머 표시
+- 로그인: `owner`(환경변수 비밀번호) + 직원 계정(D1, PBKDF2). 세션 쿠키 14일. 모든 행동은 activity_log 에 기록
+- 토큰: 장기 토큰 60일, status 호출 시 만료 10일 전 자동 갱신
+- D1 적용: `wrangler d1 execute influencer-inbox --remote --file=db/schema.sql`
 
 ### dashboard.html (공구 매출 대시보드)
 - 친한스토어 어드민 REST API 직접 호출 (캘린더와 인증 토큰 공유)

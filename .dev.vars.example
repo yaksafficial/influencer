@@ -12,3 +12,14 @@ STUDY_SCRIPT_URL=https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec
 # Apify API token (https://console.apify.com/account/integrations)
 # 인스타그램 스크래퍼(apify/instagram-scraper) 호출용. 인플루언서 인스타 피드 조회.
 APIFY_TOKEN=apify_api_YOUR_TOKEN_HERE
+
+# ── 고객 응대 인박스 (inbox.html → functions/api/ig/*) ──
+# Meta 앱 대시보드 > Instagram > API setup with Instagram login > Business login settings 의 "Instagram app ID / secret"
+IG_APP_ID=1234567890
+IG_APP_SECRET=your_instagram_app_secret
+# 웹훅 검증 토큰: 임의의 긴 문자열. Meta 웹훅 설정의 "Verify token" 에 동일하게 입력
+IG_WEBHOOK_VERIFY_TOKEN=change_me_random_string
+# inbox.html 에서 이름 "owner" 로 로그인할 때 쓰는 비밀번호 (직원 계정은 화면에서 추가)
+INBOX_ADMIN_PASSWORD=change_me
+# (선택) Graph API 버전. 기본 v23.0
+# IG_API_VERSION=v23.0
