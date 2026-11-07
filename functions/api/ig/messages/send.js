@@ -28,14 +28,14 @@ export async function onRequestPost(context) {
   const sent = [];
   try {
     if (kit && kit.attachment_url && kit.attachment_type) {
-      const r = await igFetch(env, account.access_token, base, {
+      const r = await igFetch(env, account, base, {
         method: 'POST',
         body: { recipient: { id: String(participant_id) }, message: { attachment: { type: kit.attachment_type, payload: { url: kit.attachment_url } } } },
       });
       sent.push({ mid: r.message_id, text: `[자료 첨부] ${kit.name}`, attachments: [{ type: kit.attachment_type, payload: { url: kit.attachment_url } }] });
     }
     if (msg) {
-      const r = await igFetch(env, account.access_token, base, {
+      const r = await igFetch(env, account, base, {
         method: 'POST',
         body: { recipient: { id: String(participant_id) }, message: { text: msg } },
       });

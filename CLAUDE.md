@@ -102,7 +102,8 @@ influencer/
 - 자료 DM: 댓글 작성자에게 Private Reply 로 자료(킷) 발송. **댓글당 1회, 작성 후 7일 이내** (Meta 강제). 첨부 시도 후 실패하면 본문(링크)으로 대체
 - DM 인박스: 대화 목록/스레드/전송. 인스타 앱의 1차/일반/요청 폴더는 API가 제공하지 않으므로 자체 필터(안 읽음·24h 답장 가능·팔로워·담당) 사용. 24시간 윈도우 타이머 표시
 - 로그인: `owner`(환경변수 비밀번호) + 직원 계정(D1, PBKDF2). 세션 쿠키 14일. 모든 행동은 activity_log 에 기록
-- 토큰: 장기 토큰 60일, status 호출 시 만료 10일 전 자동 갱신
+- 계정 연결: **신규 Meta 앱은 통합 로그인(Unified login)만 지원**. 대시보드 '2. 액세스 토큰 생성'에서 받은 토큰을 inbox 설정 › [토큰으로 연결]에 붙여넣음 (`functions/api/ig/token.js`). 토큰 접두어로 호스트 판별: `EAA…` → graph.facebook.com(`api_host='facebook'`, 만료 없음), `IGAA…` → graph.instagram.com(구 Instagram 로그인, 60일·자동 갱신)
+- 모든 IG 호출은 `/{ig_user_id}/...` 경로 + `igFetch(env, account, …)` 로 호스트 자동 선택. `IG_APP_SECRET` 은 Meta 앱 시크릿(웹훅 서명 검증)
 - D1 적용: `wrangler d1 execute influencer-inbox --remote --file=db/schema.sql`
 
 ### dashboard.html (공구 매출 대시보드)

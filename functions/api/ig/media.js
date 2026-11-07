@@ -16,10 +16,10 @@ export async function onRequestGet(context) {
     account = await refreshTokenIfNeeded(env, db, account);
     let synced = 0;
     try {
-      let path = '/me/media';
+      let path = `/${account.ig_user_id}/media`;
       let params = { fields: FIELDS, limit: 50 };
       for (let page = 0; page < 2; page++) {
-        const data = await igFetch(env, account.access_token, path, { params });
+        const data = await igFetch(env, account, path, { params });
         for (const m of data.data || []) {
           await db.prepare(`
             INSERT INTO media (id, caption, media_type, media_url, thumbnail_url, permalink, timestamp, comments_count, like_count, synced_at)

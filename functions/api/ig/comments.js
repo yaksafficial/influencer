@@ -44,7 +44,7 @@ export async function onRequestGet(context) {
     let synced = 0;
     for (const mid of targets) {
       try {
-        const data = await igFetch(env, account.access_token, `/${mid}/comments`, { params: { fields: COMMENT_FIELDS, limit: 50 } });
+        const data = await igFetch(env, account, `/${mid}/comments`, { params: { fields: COMMENT_FIELDS, limit: 50 } });
         for (const c of data.data || []) {
           await upsertComment(db, c, mid, myId, 'sync');
           synced++;

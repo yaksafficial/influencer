@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS ig_account (
   token_expires_at INTEGER,
   connected_at     INTEGER NOT NULL,
   refreshed_at     INTEGER,
-  webhook_fields   TEXT
+  webhook_fields   TEXT,
+  api_host         TEXT DEFAULT 'instagram'  -- instagram | facebook(통합 로그인)
 );
 
 -- 게시물 (API 동기화 캐시)

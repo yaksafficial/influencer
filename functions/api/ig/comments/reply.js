@@ -17,7 +17,7 @@ export async function onRequestPost(context) {
 
   let res;
   try {
-    res = await igFetch(env, account.access_token, `/${comment_id}/replies`, { method: 'POST', params: { message: msg } });
+    res = await igFetch(env, account, `/${comment_id}/replies`, { method: 'POST', params: { message: msg } });
   } catch (e) {
     return error(`답글 실패: ${e.message}`, 502, { payload: e.payload });
   }
@@ -44,7 +44,7 @@ export async function onRequestPatch(context) {
   if (!account) return error('Instagram 계정이 연결되지 않았습니다.', 409);
   account = await refreshTokenIfNeeded(env, env.DB, account);
   try {
-    await igFetch(env, account.access_token, `/${comment_id}`, { method: 'POST', params: { hide: hide ? 'true' : 'false' } });
+    await igFetch(env, account, `/${comment_id}`, { method: 'POST', params: { hide: hide ? 'true' : 'false' } });
   } catch (e) {
     return error(`숨기기 실패: ${e.message}`, 502, { payload: e.payload });
   }

@@ -20,7 +20,7 @@ async function sendOne(env, db, account, comment, kit, customText, who) {
   // 1순위: 첨부가 설정된 킷이면 첨부로 시도
   if (kit && kit.attachment_url && kit.attachment_type) {
     try {
-      result = await igFetch(env, account.access_token, base, {
+      result = await igFetch(env, account, base, {
         method: 'POST',
         body: { recipient: { comment_id: comment.id }, message: { attachment: { type: kit.attachment_type, payload: { url: kit.attachment_url } } } },
       });
@@ -33,7 +33,7 @@ async function sendOne(env, db, account, comment, kit, customText, who) {
   // 2순위(또는 기본): 텍스트(링크 포함)
   if (!result) {
     try {
-      result = await igFetch(env, account.access_token, base, {
+      result = await igFetch(env, account, base, {
         method: 'POST',
         body: { recipient: { comment_id: comment.id }, message: { text } },
       });

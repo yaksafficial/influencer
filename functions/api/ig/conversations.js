@@ -31,7 +31,7 @@ export async function onRequestGet(context) {
     const myId = String(account.ig_user_id);
     let synced = 0;
     try {
-      const data = await igFetch(env, account.access_token, '/me/conversations', { params: { platform: 'instagram', fields: CONV_FIELDS, limit: 50 } });
+      const data = await igFetch(env, account, `/${account.ig_user_id}/conversations`, { params: { platform: 'instagram', fields: CONV_FIELDS, limit: 50 } });
       for (const conv of data.data || []) {
         const participants = (conv.participants && conv.participants.data) || [];
         const other = participants.find((p) => String(p.id) !== myId) || participants[0];

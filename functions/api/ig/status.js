@@ -20,6 +20,7 @@ export async function onRequestGet(context) {
     },
     env: {
       app_id_set: !!env.IG_APP_ID,
+      login_url_set: !!env.IG_LOGIN_URL,
       app_secret_set: !!env.IG_APP_SECRET,
       admin_password_set: !!env.INBOX_ADMIN_PASSWORD,
     },
@@ -55,11 +56,12 @@ export async function onRequestGet(context) {
     token_expires_at: account.token_expires_at,
     token_days_left: account.token_expires_at ? Math.floor((account.token_expires_at - now()) / 86400000) : null,
     webhook_fields: account.webhook_fields,
+    api_host: account.api_host || 'instagram',
   };
 
   // API 응답 확인
   try {
-    const me = await igFetch(env, account.access_token, '/me', { params: { fields: 'user_id,username' } });
+    const me = await igFetch(env, account, `/${account.ig_user_id}`, { params: { fields: 'id,username' } });
     result.checks.api = { ok: true, username: me.username };
   } catch (e) {
     result.checks.api = { ok: false, error: e.message, code: e.payload && e.payload.error && e.payload.error.code };
@@ -67,7 +69,7 @@ export async function onRequestGet(context) {
 
   // DM 접근 확인 ("메시지 접근 허용" 토글이 꺼져 있으면 여기서 실패하거나 빈 결과)
   try {
-    const conv = await igFetch(env, account.access_token, '/me/conversations', { params: { platform: 'instagram', limit: 1 } });
+    const conv = await igFetch(env, account, `/${account.ig_user_id}/conversations`, { params: { platform: 'instagram', limit: 1 } });
     result.checks.messaging = { ok: true, sample: Array.isArray(conv.data) ? conv.data.length : 0 };
   } catch (e) {
     result.checks.messaging = { ok: false, error: e.message, code: e.payload && e.payload.error && e.payload.error.code };
@@ -75,7 +77,7 @@ export async function onRequestGet(context) {
 
   // 웹훅 구독 상태 확인
   try {
-    const subs = await igFetch(env, account.access_token, `/${account.ig_user_id}/subscribed_apps`);
+    const subs = await igFetch(env, account, `/${account.ig_user_id}/subscribed_apps`);
     result.checks.webhook_subscription = { ok: true, data: subs.data || subs };
   } catch (e) {
     result.checks.webhook_subscription = { ok: false, error: e.message };
