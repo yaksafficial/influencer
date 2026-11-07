@@ -9,4 +9,4 @@ compatibility_date = "2025-05-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "influencer-inbox"
-database_id = "REPLACE_WITH_D1_DATABASE_ID"
+database_id = "aa004a78-5999-4d23-9d12-f544fe31863d"

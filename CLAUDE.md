@@ -124,6 +124,10 @@ influencer/
 | `group_purchase_plan_step_code` | 필터링용 (T4, T6, T8, Y0만 표시) |
 
 ## 배포
+- **자동 배포**: `main` 또는 `claude/cool-hypatia-vzy9wv` 브랜치에 push 하면 GitHub Actions(`.github/workflows/deploy.yml`)가 Cloudflare Pages 프로젝트 `influencer`(https://influencer-6d1.pages.dev)로 배포. 저장소 시크릿 `CLOUDFLARE_API_TOKEN` 필요.
+- D1 데이터베이스: `influencer-inbox` (wrangler.toml 의 database_id). 스키마 변경 시 `wrangler d1 execute influencer-inbox --remote --file=db/schema.sql`
+- Pages 비밀값(환경변수)은 `wrangler pages secret put <이름> --project-name=influencer` 로 등록
+- 수동 배포:
 ```bash
 # Cloudflare Pages (전체 배포)
 CLOUDFLARE_API_TOKEN=<토큰> wrangler pages deploy . --project-name=<your-project> --commit-dirty=true
