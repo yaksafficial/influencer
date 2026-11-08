@@ -23,6 +23,7 @@ influencer/
 ├── study-skills-practice.html← 스킬 실습 가이드 (수업 자료)
 ├── dashboard.html            ← 공구 매출 대시보드 (API 직접 호출)
 ├── inbox.html                ← 고객 응대 인박스 (인스타 댓글/DM 응대, 자료 DM 발송)
+├── privacy.html, data-deletion.html ← 인박스(Meta 앱 '약사피셜 CS') 개인정보처리방침·데이터 삭제 안내 (앱 게시 필수 URL)
 ├── db/schema.sql             ← 인박스용 Cloudflare D1 스키마
 ├── wrangler.toml             ← Pages 설정 + D1 바인딩(DB)
 ├── functions/
