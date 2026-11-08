@@ -145,6 +145,21 @@
     .modal h3 { margin-bottom: 12px; }
     .preview { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 10px 12px; white-space: pre-wrap; font-size: 13px; margin-bottom: 12px; max-height: 180px; overflow-y: auto; }
 
+    /* 과거 응대 검색 */
+    .searchbox { width: 240px; padding: 7px 10px; font-size: 13px; }
+    mark { background: #FFE58F; color: inherit; padding: 0 1px; border-radius: 3px; }
+    .sr { background: var(--bg-primary); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 12px 14px; margin-bottom: 10px; }
+    .sr .sr-head { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 12px; color: var(--text-tertiary); margin-bottom: 8px; }
+    .sr .q { white-space: pre-wrap; word-break: break-word; }
+    .sr .a { margin-top: 6px; padding: 8px 10px; background: var(--teal-bg); border-radius: var(--radius-md); white-space: pre-wrap; word-break: break-word; font-size: 13.5px; }
+    .sr .a.other { background: var(--bg-secondary); }
+    .sr .a .who { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 11.5px; color: var(--text-secondary); margin-bottom: 3px; }
+    .sr .bub { padding: 6px 10px; border-radius: 12px; margin: 4px 0; max-width: 85%; white-space: pre-wrap; word-break: break-word; font-size: 13.5px; }
+    .sr .bub.in { background: var(--bg-secondary); }
+    .sr .bub.out { background: var(--teal-bg); margin-left: auto; }
+    .sr .bub .who { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; color: var(--text-tertiary); margin-bottom: 2px; }
+    .scope-chips button.on { background: var(--teal-bg); color: var(--teal-dark); border-color: var(--teal); font-weight: 600; }
+
     /* 근무앱 등 다른 화면 안에 들어갔을 때: 왼쪽 메뉴를 위쪽 가로 메뉴로 바꿔 내용 폭을 넓힌다 */
     body.embedded #app.on { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
     body.embedded .side { flex-direction: row; align-items: center; gap: 2px; padding: 6px 10px; border-right: 0; border-bottom: 0.5px solid var(--border); }
@@ -184,6 +199,7 @@
     <div class="brand">약사피셜 CS</div>
     <button class="nav active" data-view="comments" title="최근 30일 미처리 댓글 수">댓글 <span class="badge amber" id="nav-open-comments">0</span></button>
     <button class="nav" data-view="dm">DM <span class="badge amber" id="nav-open-dm">0</span></button>
+    <button class="nav" data-view="search">검색</button>
     <button class="nav" data-view="kits">자료</button>
     <button class="nav" data-view="settings">설정</button>
     <button class="nav" data-view="log">기록</button>
@@ -198,6 +214,7 @@
       <div style="display:flex;flex-direction:column;width:100%;height:100%">
         <div class="topbar">
           <h2>댓글</h2>
+          <input class="searchbox" data-scope="comments" placeholder="🔍 과거 답변 검색 (예: 유산균 임산부)" />
           <select id="c-status" style="width:auto">
             <option value="open">미처리</option><option value="done">처리완료</option><option value="all">전체</option>
           </select>
@@ -223,17 +240,36 @@
       <div style="display:flex;flex-direction:column;width:100%;height:100%">
         <div class="topbar">
           <h2>DM</h2>
+          <input class="searchbox" data-scope="dm" placeholder="🔍 과거 답변 검색 (예: 유산균 임산부)" />
           <select id="d-status" style="width:auto" title="처리 상태"><option value="open">상태: 진행중</option><option value="done">상태: 완료</option><option value="all">상태: 전체</option></select>
           <select id="d-filter" style="width:auto">
             <option value="">보기: 전체</option><option value="unread">보기: 안 읽음</option><option value="window">보기: 답장 가능(24h)</option>
             <option value="follower">보기: 팔로워</option><option value="nonfollower">보기: 비팔로워</option><option value="mine">보기: 내 담당</option>
           </select>
           <button id="d-sync">동기화</button>
+          <button id="d-older" title="인박스에 아직 없는 오래된 대화 20개를 더 가져옵니다">이전 대화 더 불러오기</button>
         </div>
         <div class="split">
           <div class="pane left" id="conv-list"></div>
           <div class="pane right" id="thread"><p class="muted">왼쪽에서 대화를 선택하세요.</p></div>
         </div>
+      </div>
+    </section>
+
+    <!-- 과거 응대 검색 -->
+    <section class="view" id="view-search">
+      <div style="display:flex;flex-direction:column;width:100%;height:100%">
+        <div class="topbar">
+          <h2>과거 응대 검색</h2>
+          <form id="sr-form" class="row" style="flex:1;min-width:280px">
+            <input id="sr-q" placeholder="키워드 (띄어쓰기로 여러 단어 → 모두 포함된 글)" style="flex:1" />
+            <button class="primary" type="submit">검색</button>
+          </form>
+          <div class="row scope-chips" id="sr-scope">
+            <button type="button" data-scope="all" class="on">전체</button><button type="button" data-scope="comments">댓글</button><button type="button" data-scope="dm">DM</button>
+          </div>
+        </div>
+        <div class="single" id="sr-results"><p class="muted">고객 질문과 그때 우리가 단 답변을 키워드로 찾습니다. 인박스에 저장된 기록 안에서 검색합니다.</p></div>
       </div>
     </section>
 
@@ -379,7 +415,7 @@
     state.view = v;
     $$('.nav').forEach((b) => b.classList.toggle('active', b.dataset.view === v));
     $$('.view').forEach((s) => s.classList.toggle('on', s.id === `view-${v}`));
-    ({ comments: loadComments, dm: loadConvs, kits: loadKits, settings: loadStatus, log: loadLog })[v]();
+    ({ comments: loadComments, dm: loadConvs, kits: loadKits, settings: loadStatus, log: loadLog, search: () => $('#sr-q').focus() })[v]();
   }
 
   async function boot() {
@@ -667,6 +703,75 @@
   $('#d-status').addEventListener('change', () => loadConvs());
   $('#d-filter').addEventListener('change', () => loadConvs());
   $('#d-sync').addEventListener('click', () => loadConvs(true));
+  $('#d-older').addEventListener('click', async () => {
+    const b = $('#d-older'); b.disabled = true; b.textContent = '불러오는 중…';
+    try {
+      const q = new URLSearchParams({ sync: '1', older: '1', status: 'all', filter: '' });
+      const d = await api(`conversations?${q}`);
+      const r = d.sync || {};
+      toast(r.rate_limited ? '인스타 API 호출 한도 초과 — 약 1시간 뒤 다시 시도하세요.' : r.no_more && !r.conversations ? '더 불러올 이전 대화가 없습니다.' : `이전 대화 ${r.conversations ?? 0}건, 메시지 ${r.messages ?? 0}건을 불러왔습니다.`, 6000);
+      $('#d-status').value = 'all'; loadConvs();
+    } catch (e) { toast(e.message, 5000); }
+    finally { b.disabled = false; b.textContent = '이전 대화 더 불러오기'; }
+  });
+
+  // ── 과거 응대 검색 ──
+  state.srScope = 'all';
+  function hl(text, q) {
+    const out = esc(text || '');
+    const terms = String(q || '').trim().split(/\s+/).filter(Boolean).map((t) => esc(t)).sort((a, b) => b.length - a.length);
+    if (!terms.length) return out;
+    const re = new RegExp('(' + terms.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')', 'gi');
+    return out.replace(re, '<mark>$1</mark>');
+  }
+  async function copyText(text) {
+    try { await navigator.clipboard.writeText(text); }
+    catch (_) {
+      // 다른 화면(iframe) 안에서는 클립보드 권한이 없을 수 있어 예전 방식으로 복사
+      const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    }
+    toast('복사했습니다. 답글·DM 입력칸에 붙여넣으세요.');
+  }
+  function setScope(sc) {
+    state.srScope = sc;
+    $$('#sr-scope button').forEach((b) => b.classList.toggle('on', b.dataset.scope === sc));
+  }
+  function openSearch(q, scope) {
+    $('#sr-q').value = q; setScope(scope || 'all'); switchView('search'); runSearch();
+  }
+  async function runSearch() {
+    const q = $('#sr-q').value.trim(); if (!q) return;
+    $('#sr-results').innerHTML = '<p class="muted">검색 중…</p>';
+    try {
+      const d = await api(`search?${new URLSearchParams({ q, scope: state.srScope })}`);
+      state.srCopy = [];
+      const keep = (t) => { state.srCopy.push(t || ''); return state.srCopy.length - 1; };
+      const cards = d.results.map((r) => {
+        if (r.type === 'comment') {
+          const qn = r.question;
+          return `<div class="sr">
+            <div class="sr-head"><span class="badge blue">댓글</span><span>${fmt(r.at)}</span>${r.media_caption ? `<span>게시물: ${esc(r.media_caption.slice(0, 40))}${r.media_permalink ? ` · <a href="${esc(r.media_permalink)}" target="_blank" rel="noopener">열기</a>` : ''}</span>` : ''}${r.answered ? '' : '<span class="badge amber">답변 없음</span>'}</div>
+            <div class="q"><b>@${esc(qn.from_username || '?')}</b> ${hl(qn.text, q)}</div>
+            ${r.replies.map((a) => `<div class="a ${a.is_mine ? '' : 'other'}"><div class="who"><span>${a.is_mine ? `↳ 우리 답변${a.handled_by && a.handled_by !== '인스타 앱' ? ' · ' + esc(a.handled_by) : ''}` : '↳ @' + esc(a.from_username || '?')} · ${fmt(a.timestamp)}</span>${a.is_mine ? `<button class="sm" data-copy="${keep(a.text)}">복사</button>` : ''}</div>${hl(a.text, q)}</div>`).join('')}
+          </div>`;
+        }
+        return `<div class="sr">
+          <div class="sr-head"><span class="badge purple">DM</span><b>@${esc(r.username || r.participant_id)}</b><span>${fmt(r.at)}</span>${r.answered ? '' : '<span class="badge amber">답변 없음</span>'}<span style="margin-left:auto"></span><button class="sm" data-open="${esc(r.participant_id)}">대화 열기</button></div>
+          ${r.messages.map((m) => `<div class="bub ${m.direction}"><div class="who"><span>${m.direction === 'out' ? '우리' + (m.sent_by ? ' · ' + esc(m.sent_by) : '') : '고객'} · ${fmt(m.timestamp)}</span>${m.direction === 'out' && m.text ? `<button class="sm" data-copy="${keep(m.text)}">복사</button>` : ''}</div>${hl(m.text || (m.attachments ? '(첨부)' : ''), q)}</div>`).join('')}
+        </div>`;
+      });
+      $('#sr-results').innerHTML = `<p class="muted" style="margin-bottom:10px">"${esc(q)}" — 댓글 ${d.counts.comments}건 · DM ${d.counts.dms}건 (최신순)</p>` +
+        (cards.join('') || '<p class="muted">찾은 기록이 없습니다. 다른 단어로 찾아보거나, 과거 기록을 더 불러온 뒤 다시 검색해 보세요.</p>');
+      $$('#sr-results [data-copy]').forEach((b) => b.addEventListener('click', () => copyText(state.srCopy[Number(b.dataset.copy)])));
+      $$('#sr-results [data-open]').forEach((b) => b.addEventListener('click', () => { switchView('dm'); openConv(b.dataset.open); }));
+    } catch (e) { $('#sr-results').innerHTML = `<p style="color:var(--red)">${esc(e.message)}</p>`; }
+  }
+  $('#sr-form').addEventListener('submit', (e) => { e.preventDefault(); runSearch(); });
+  $$('#sr-scope button').forEach((b) => b.addEventListener('click', () => { setScope(b.dataset.scope); runSearch(); }));
+  $$('.searchbox').forEach((inp) => inp.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && inp.value.trim()) { openSearch(inp.value.trim(), inp.dataset.scope); inp.value = ''; }
+  }));
 
   // ── 기록 ──
   async function loadLog() {

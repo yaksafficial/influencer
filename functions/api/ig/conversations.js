@@ -1,5 +1,5 @@
 // DM 대화 목록 / 스레드 메시지 / API 동기화 / 상태·담당자 변경
-import { json, error, readJson, getAccount, refreshTokenIfNeeded, igFetch, toMs, now, logActivity, fetchProfile, setSetting, isRateLimited, RATE_LIMIT_MSG } from './_lib.js';
+import { json, error, readJson, getAccount, refreshTokenIfNeeded, igFetch, toMs, now, logActivity, fetchProfile, setSetting, getSetting, isRateLimited, RATE_LIMIT_MSG } from './_lib.js';
 
 const LIST_LIMIT = 20; // Workers 무료 플랜 외부 호출 50회/요청 한도 고려
 const MSG_FIELDS = 'id,created_time,from,to,message,attachments';
@@ -11,14 +11,26 @@ function errText(e) {
 
 // 대화 목록을 먼저 가져오고, 대화별 메시지는 따로 조회한다.
 // 메시지 조회 방식은 첫 성공 방식을 이후에도 사용 (A: 대화 노드의 messages 필드, B: /messages 엣지, C: 메시지 ID별 상세)
-async function syncConversations(env, db, account) {
+// older=true: 지난번에 멈춘 위치(settings.dm_list_after) 다음 20개 대화를 가져온다
+async function syncConversations(env, db, account, { older = false } = {}) {
   const myId = String(account.ig_user_id);
   const myName = account.username;
-  const result = { ok: false, at: now(), host: account.api_host, conversations: 0, messages: 0, mode: null, errors: [] };
+  const result = { ok: false, at: now(), host: account.api_host, conversations: 0, messages: 0, mode: null, errors: [], older };
+
+  const params = { platform: 'instagram', fields: 'id,updated_time,participants', limit: LIST_LIMIT };
+  if (older) {
+    const after = await getSetting(db, 'dm_list_after');
+    if (!after) { result.ok = true; result.no_more = true; return result; }
+    params.after = after;
+  }
 
   let list;
   try {
-    list = await igFetch(env, account, `/${myId}/conversations`, { params: { platform: 'instagram', fields: 'id,updated_time,participants', limit: LIST_LIMIT } });
+    list = await igFetch(env, account, `/${myId}/conversations`, { params });
+    // 다음에 이어서 불러올 위치 저장 (처음 동기화는 기존 위치가 없을 때만 기록)
+    const next = list.paging && list.paging.next && list.paging.cursors ? list.paging.cursors.after : null;
+    if (older || !(await getSetting(db, 'dm_list_after'))) await setSetting(db, 'dm_list_after', next);
+    if (older && !next) result.no_more = true;
   } catch (e) {
     if (isRateLimited(e)) result.rate_limited = true;
     result.errors.push(result.rate_limited ? RATE_LIMIT_MSG : `대화 목록: ${errText(e)}`);
@@ -134,7 +146,7 @@ export async function onRequestGet(context) {
     let account = await getAccount(db);
     if (!account) return error('Instagram 계정이 연결되지 않았습니다.', 409);
     account = await refreshTokenIfNeeded(env, db, account);
-    const result = await syncConversations(env, db, account);
+    const result = await syncConversations(env, db, account, { older: url.searchParams.get('older') === '1' });
     await setSetting(db, 'dm_sync_last', JSON.stringify(result));
     if (!result.ok) {
       return error(`DM 동기화 실패: ${result.errors[0] || '알 수 없는 오류'}`, 502, { diagnostics: result });

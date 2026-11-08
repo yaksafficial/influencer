@@ -34,30 +34,41 @@ export async function onRequestGet(context) {
     account = await refreshTokenIfNeeded(env, db, account);
     const myId = String(account.ig_user_id);
 
-    // 대상 게시물: 지정된 1개, 또는 최근 30개 중 인스타의 댓글 수가 저장된 댓글 수보다 많은 것(최대 15개)
-    // → 바뀐 게시물만 조회해 Meta 호출 한도를 아낀다
+    // 대상 게시물: 지정된 1개, 또는 인스타의 댓글 수가 저장된 댓글 수보다 많은 게시물(최신순 최대 12개).
+    // 저장된 게시물 전체가 대상이라, 누를 때마다 오래된 게시물 댓글까지 점차 채워진다.
+    // Meta 호출은 한 번에 최대 CALL_BUDGET 회 (게시물당 최대 3페이지 = 150개)
+    const CALL_BUDGET = 36;
+    let calls = 0;
     let targets = [];
     if (mediaId) targets = [mediaId];
     else {
       const r = await db.prepare(`
-        SELECT id FROM (SELECT id, timestamp, comments_count FROM media ORDER BY COALESCE(timestamp, 0) DESC LIMIT 30) m
+        SELECT m.id FROM media m
         WHERE COALESCE(m.comments_count, 0) > (SELECT COUNT(*) FROM comments c WHERE c.media_id = m.id)
-        ORDER BY COALESCE(m.timestamp, 0) DESC LIMIT 15
+        ORDER BY COALESCE(m.timestamp, 0) DESC LIMIT 12
       `).all();
       targets = r.results.map((x) => x.id);
     }
     let synced = 0;
     for (const mid of targets) {
+      if (calls >= CALL_BUDGET) break;
       try {
-        const data = await igFetch(env, account, `/${mid}/comments`, { params: { fields: COMMENT_FIELDS, limit: 50 } });
-        for (const c of data.data || []) {
-          await upsertComment(db, c, mid, myId, 'sync');
-          synced++;
-          const replies = (c.replies && c.replies.data) || [];
-          for (const r of replies) {
-            await upsertComment(db, { ...r, parent_id: r.parent_id || c.id }, mid, myId, 'sync');
+        let params = { fields: COMMENT_FIELDS, limit: 50 };
+        for (let page = 0; page < 3 && calls < CALL_BUDGET; page++) {
+          calls++;
+          const data = await igFetch(env, account, `/${mid}/comments`, { params });
+          for (const c of data.data || []) {
+            await upsertComment(db, c, mid, myId, 'sync');
             synced++;
+            const replies = (c.replies && c.replies.data) || [];
+            for (const r of replies) {
+              await upsertComment(db, { ...r, parent_id: r.parent_id || c.id }, mid, myId, 'sync');
+              synced++;
+            }
           }
+          const after = data.paging && data.paging.next && data.paging.cursors && data.paging.cursors.after;
+          if (!after) break;
+          params = { fields: COMMENT_FIELDS, limit: 50, after };
         }
       } catch (e) {
         if (isRateLimited(e)) {

@@ -105,6 +105,8 @@ influencer/
 - 로그인: `owner`(환경변수 비밀번호) + 직원 계정(D1, PBKDF2). 세션 쿠키 14일. 모든 행동은 activity_log 에 기록
 - 계정 연결: **신규 Meta 앱은 통합 로그인(Unified login)만 지원**. 대시보드 '2. 액세스 토큰 생성'에서 받은 토큰을 inbox 설정 › [토큰으로 연결]에 붙여넣음 (`functions/api/ig/token.js`). 토큰 접두어로 호스트 판별: `EAA…` → graph.facebook.com(`api_host='facebook'`, 만료 없음), `IGAA…` → graph.instagram.com(구 Instagram 로그인, 60일·자동 갱신)
 - 모든 IG 호출은 `/{ig_user_id}/...` 경로 + `igFetch(env, account, …)` 로 호스트 자동 선택. `IG_APP_SECRET` 은 Meta 앱 시크릿(웹훅 서명 검증)
+- 과거 응대 검색: 댓글·DM 상단 검색란 / [검색] 탭 → `GET /api/ig/search?q=&scope=all|comments|dm` (띄어쓰기 단어 AND, LIKE 부분 일치). 댓글은 원 댓글+답글 묶음, DM은 일치 메시지 앞2·뒤3 맥락. 우리 답변에 [복사]
+- 과거 기록 채우기: DM [이전 대화 더 불러오기] (`conversations?sync=1&older=1`, 커서 settings.dm_list_after, 20개씩). 댓글 동기화는 저장 수 < 인스타 댓글 수인 게시물을 최신순 12개, 게시물당 최대 3페이지(Meta 호출 36회 한도)
 - 근무앱 자동 로그인: `GET /api/ig/sso?u=이름&ts=초&sig=HMAC-SHA256(CS_SSO_SECRET, "이름.초")` (유효 10분) → 세션 생성 후 /inbox.html. 기본 권한 명훈약사=owner, 지우약사=staff (`CS_SSO_USERS` 로 변경). 근무앱(yaksa-work-app) `lib/sso.py` 가 같은 방식으로 서명
 - D1 적용: `wrangler d1 execute influencer-inbox --remote --file=db/schema.sql`
 
