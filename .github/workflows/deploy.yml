@@ -1,5 +1,6 @@
 # Cloudflare Pages 배포 (사이트 + Functions + D1 바인딩)
-# - main 또는 작업 브랜치에 push 되면 프로덕션(https://influencer-6d1.pages.dev)으로 배포
+# - main 에 push → 운영(https://influencer-6d1.pages.dev)으로 배포
+# - 그 외 브랜치에 push → 미리보기 주소(https://<브랜치>.influencer-6d1.pages.dev)로만 배포 (운영 영향 없음)
 # - 저장소 Settings > Secrets and variables > Actions 에 CLOUDFLARE_API_TOKEN 필요
 #   (권한: Account > Cloudflare Pages: Edit, Account > D1: Edit)
 name: Deploy to Cloudflare Pages
@@ -25,4 +26,4 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ddc7960718b4cad54e9ef69c91b6b889
           wranglerVersion: "3.114.17"
-          command: pages deploy . --project-name=influencer --branch=main --commit-dirty=true
+          command: pages deploy . --project-name=influencer --branch=${{ github.ref_name }} --commit-dirty=true
