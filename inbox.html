@@ -145,6 +145,17 @@
     .modal h3 { margin-bottom: 12px; }
     .preview { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 10px 12px; white-space: pre-wrap; font-size: 13px; margin-bottom: 12px; max-height: 180px; overflow-y: auto; }
 
+    /* 근무앱 등 다른 화면 안에 들어갔을 때: 왼쪽 메뉴를 위쪽 가로 메뉴로 바꿔 내용 폭을 넓힌다 */
+    body.embedded #app.on { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+    body.embedded .side { flex-direction: row; align-items: center; gap: 2px; padding: 6px 10px; border-right: 0; border-bottom: 0.5px solid var(--border); }
+    body.embedded .side .brand { padding: 0 12px 0 4px; font-size: 14px; }
+    body.embedded .side .nav { padding: 6px 10px; gap: 6px; }
+    body.embedded .side .spacer { display: block; }
+    body.embedded .side .health { padding: 4px 8px; }
+    body.embedded .side .me { border-top: 0; padding: 4px 8px; }
+    body.embedded .topbar { padding: 8px 14px; }
+    body.embedded .split { grid-template-columns: 280px 1fr; }
+
     @media (max-width: 860px) {
       #app.on { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
       .side { flex-direction: row; flex-wrap: wrap; padding: 8px; }
@@ -667,6 +678,9 @@
   }
 
   // ── 시작 ──
+  // 다른 화면(iframe) 안에서 열렸으면 넓은 배치 사용
+  try { if (window.self !== window.top) document.body.classList.add('embedded'); } catch (_) { document.body.classList.add('embedded'); }
+
   (async () => {
     const qs = new URL(location.href).searchParams;
     const ssoErr = qs.get('sso_error');
