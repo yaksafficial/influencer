@@ -89,7 +89,8 @@ export function parseCookies(request) {
 }
 
 export function sessionCookie(token, maxAgeSec) {
-  return `${SESSION_COOKIE}=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAgeSec}`;
+  // SameSite=None + Partitioned: 근무앱(Streamlit) 화면 안에 iframe 으로 넣어도 로그인이 유지되도록
+  return `${SESSION_COOKIE}=${token}; Path=/; HttpOnly; Secure; SameSite=None; Partitioned; Max-Age=${maxAgeSec}`;
 }
 
 export async function createSession(db, staffName, role) {
