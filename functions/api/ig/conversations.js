@@ -37,9 +37,13 @@ async function syncConversations(env, db, account) {
 
     if (result.rate_limited) break;
     // 저장된 마지막 메시지 이후 변화가 없으면 메시지 조회 생략 (호출 한도 절약)
-    const known = await db.prepare('SELECT last_message_at FROM conversations WHERE participant_id = ?').bind(pid).first();
+    // 단, 메시지가 하나도 저장되지 않은 대화(이전 동기화가 한도 초과로 끊긴 경우 등)는 다시 조회
+    const known = await db.prepare(`
+      SELECT c.last_message_at, (SELECT COUNT(*) FROM messages m WHERE m.participant_id = c.participant_id) AS n
+      FROM conversations c WHERE c.participant_id = ?
+    `).bind(pid).first();
     const updatedAt = toMs(conv.updated_time);
-    if (known && known.last_message_at && updatedAt && updatedAt <= known.last_message_at) {
+    if (known && known.n > 0 && known.last_message_at && updatedAt && updatedAt <= known.last_message_at) {
       result.skipped = (result.skipped || 0) + 1;
       continue;
     }

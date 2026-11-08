@@ -611,7 +611,7 @@
       const w = windowLeft(c);
       return `<div class="conv-item ${state.conv === c.participant_id ? 'active' : ''}" data-id="${esc(c.participant_id)}">
         <div class="top"><span class="name">@${esc(c.participant_username || c.participant_id)}</span><span class="muted">${rel(c.last_message_at)}</span></div>
-        <div class="prev">${esc(c.last_text || '')}</div>
+        <div class="prev">${c.last_text ? esc(c.last_text) : '<span class="muted">메시지 미수신 — [동기화]로 불러오기</span>'}</div>
         <div class="tags">${c.unread ? `<span class="badge amber">안 읽음 ${c.unread}</span>` : ''}${w > 0 ? `<span class="badge teal">답장 가능 ${hm(w)}</span>` : '<span class="badge gray">답장 불가</span>'}${c.is_follower === 1 ? '<span class="badge blue">팔로워</span>' : c.is_follower === 0 ? '<span class="badge gray">비팔로워</span>' : ''}${c.assigned_to ? `<span class="badge purple">${esc(c.assigned_to)}</span>` : ''}${c.status === 'done' ? '<span class="badge gray">완료</span>' : ''}</div></div>`;
     }).join('');
     $$('#conv-list .conv-item').forEach((el) => el.addEventListener('click', () => openConv(el.dataset.id)));
