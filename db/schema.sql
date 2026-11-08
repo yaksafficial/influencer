@@ -52,6 +52,8 @@ CREATE TABLE IF NOT EXISTS comments (
 );
 CREATE INDEX IF NOT EXISTS idx_comments_media ON comments (media_id, timestamp DESC);
 CREATE INDEX IF NOT EXISTS idx_comments_status ON comments (status, timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_comments_parent ON comments (parent_id);
+CREATE INDEX IF NOT EXISTS idx_comments_ts ON comments (timestamp DESC);
 
 -- DM 대화 (상대 Instagram-scoped user id 기준)
 CREATE TABLE IF NOT EXISTS conversations (
@@ -70,6 +72,7 @@ CREATE TABLE IF NOT EXISTS conversations (
   updated_at            INTEGER
 );
 CREATE INDEX IF NOT EXISTS idx_conversations_updated ON conversations (updated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_conversations_status ON conversations (status, last_message_at DESC);
 
 -- DM 메시지
 CREATE TABLE IF NOT EXISTS messages (

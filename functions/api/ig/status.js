@@ -31,11 +31,11 @@ export async function onRequestGet(context) {
   };
 
   const c = await db.batch([
-    db.prepare("SELECT COUNT(*) AS n FROM comments WHERE status = 'open' AND is_mine = 0"),
+    db.prepare("SELECT COUNT(*) AS n FROM comments WHERE status = 'open' AND timestamp > ? AND is_mine = 0").bind(now() - 30 * 24 * 3600 * 1000),
     db.prepare("SELECT COUNT(*) AS n FROM conversations WHERE status = 'open'"),
     db.prepare('SELECT COUNT(*) AS n FROM dm_kits'),
     db.prepare('SELECT COUNT(*) AS n FROM staff WHERE active = 1'),
-    db.prepare("SELECT COUNT(*) AS n FROM comments WHERE status = 'open' AND is_mine = 0 AND private_reply_sent_at IS NULL AND timestamp > ?").bind(now() - 7 * 24 * 3600 * 1000),
+    db.prepare("SELECT COUNT(*) AS n FROM comments WHERE status = 'open' AND timestamp > ? AND is_mine = 0 AND private_reply_sent_at IS NULL").bind(now() - 7 * 24 * 3600 * 1000),
   ]);
   result.counts = {
     open_comments: c[0].results[0].n,
@@ -58,6 +58,12 @@ export async function onRequestGet(context) {
     webhook_fields: account.webhook_fields,
     api_host: account.api_host || 'instagram',
   };
+
+  // light=1: 1분 주기 자동 새로고침용. Instagram API 호출(헬스체크)은 생략해 호출량을 줄인다.
+  if (new URL(context.request.url).searchParams.get('light') === '1') {
+    result.light = true;
+    return json(result);
+  }
 
   // API 응답 확인
   try {

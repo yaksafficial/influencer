@@ -171,7 +171,7 @@
 <div id="app">
   <aside class="side">
     <div class="brand">응대 인박스</div>
-    <button class="nav active" data-view="comments">댓글 <span class="badge amber" id="nav-open-comments">0</span></button>
+    <button class="nav active" data-view="comments" title="최근 30일 미처리 댓글 수">댓글 <span class="badge amber" id="nav-open-comments">0</span></button>
     <button class="nav" data-view="dm">DM <span class="badge amber" id="nav-open-dm">0</span></button>
     <button class="nav" data-view="kits">자료</button>
     <button class="nav" data-view="settings">설정</button>
@@ -384,7 +384,10 @@
   // ── 상태 ──
   async function loadStatus(quiet) {
     try {
-      const s = await api('status'); state.status = s;
+      const full = !quiet || state.view === 'settings';
+      const s = await api(full ? 'status' : 'status?light=1');
+      if (s.light && state.status && state.status.checks) s.checks = state.status.checks;
+      state.status = s;
       $('#nav-open-comments').textContent = s.counts.open_comments; $('#nav-open-dm').textContent = s.counts.open_conversations;
       const h = $('#health'); const dot = h.querySelector('.dot'); const txt = h.querySelector('span:last-child');
       if (!s.connected) { dot.className = 'dot bad'; txt.textContent = '계정 미연결'; }
