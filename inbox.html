@@ -420,6 +420,8 @@
       chk(!!s.account.webhook_fields, '웹훅 구독', s.account.webhook_fields ? s.account.webhook_fields : esc(s.webhook.subscribe_error && s.webhook.subscribe_error.message || '구독 실패 — 계정을 다시 연결하세요.'));
       chk(s.webhook.last_event_at ? true : null, '웹훅 최근 수신', s.webhook.last_event_at ? `${rel(s.webhook.last_event_at)} (댓글 ${rel(s.webhook.last_comment_at) || '없음'}, DM ${rel(s.webhook.last_message_at) || '없음'})` : '아직 수신 없음 — 테스트 댓글을 달아 확인하세요.');
       if (s.token_refresh_error) chk(false, '토큰 자동 갱신 오류', esc(JSON.stringify(s.token_refresh_error.data).slice(0, 200)));
+      const ds = s.dm_sync_last;
+      if (ds) chk(ds.ok && !(ds.errors || []).length ? true : ds.ok ? null : false, 'DM 동기화 최근 결과', `${rel(ds.at)} · 대화 ${ds.conversations ?? 0}건 · 새 메시지 ${ds.messages ?? 0}건${ds.mode ? ' · 방식 ' + esc(ds.mode) : ''}${(ds.errors || []).length ? '<br>' + ds.errors.slice(0, 3).map(esc).join('<br>') : ''}`);
     }
     $('#s-checks').innerHTML = rows.join('');
     if (state.me.role === 'owner') loadStaff();
@@ -594,7 +596,11 @@
       const q = new URLSearchParams({ status: $('#d-status').value, filter: $('#d-filter').value });
       if (sync) q.set('sync', '1');
       const d = await api(`conversations?${q}`); state.convs = d.conversations; renderConvs();
-      if (sync) { toast('동기화 완료'); loadStatus(true); }
+      if (sync) {
+        const r = d.sync || {};
+        toast(`동기화 완료 · 대화 ${r.conversations ?? 0}건, 새 메시지 ${r.messages ?? 0}건${r.errors && r.errors.length ? ` · 일부 오류 ${r.errors.length}건` : ''}`, 5000);
+        loadStatus(true);
+      }
     } catch (e) { toast(e.message, 4000); }
   }
   const windowLeft = (c) => c.last_inbound_at ? c.last_inbound_at + DAY - Date.now() : -1;

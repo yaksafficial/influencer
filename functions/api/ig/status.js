@@ -27,6 +27,7 @@ export async function onRequestGet(context) {
     counts: {},
     granted_permissions: JSON.parse((await getSetting(db, 'granted_permissions')) || '[]'),
     token_refresh_error: JSON.parse((await getSetting(db, 'token_refresh_error')) || 'null'),
+    dm_sync_last: JSON.parse((await getSetting(db, 'dm_sync_last')) || 'null'),
     now: now(),
   };
 
