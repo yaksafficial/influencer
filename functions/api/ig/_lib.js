@@ -188,6 +188,14 @@ export class IgApiError extends Error {
   }
 }
 
+// Meta 호출 한도 초과 (앱/사용자/비즈니스 단위). 한 시간 정도 지나면 풀린다.
+const RATE_LIMIT_CODES = new Set([4, 17, 32, 613, 80002, 80006]);
+export function isRateLimited(e) {
+  const code = e && e.payload && e.payload.error && e.payload.error.code;
+  return RATE_LIMIT_CODES.has(Number(code));
+}
+export const RATE_LIMIT_MSG = '인스타그램 API 호출 한도를 초과했습니다. 약 1시간 뒤 다시 시도하세요. (새 댓글·DM은 실시간 알림으로 계속 들어옵니다)';
+
 // auth: 계정 행({ access_token, api_host }) 또는 토큰 문자열(instagram 호스트)
 // path: '/123/media' 처럼 슬래시로 시작. params 는 쿼리, body 는 JSON 바디(POST)
 export async function igFetch(env, auth, path, { method = 'GET', params = {}, body = null } = {}) {

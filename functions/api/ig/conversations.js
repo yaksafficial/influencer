@@ -1,5 +1,5 @@
 // DM 대화 목록 / 스레드 메시지 / API 동기화 / 상태·담당자 변경
-import { json, error, readJson, getAccount, refreshTokenIfNeeded, igFetch, toMs, now, logActivity, fetchProfile, setSetting } from './_lib.js';
+import { json, error, readJson, getAccount, refreshTokenIfNeeded, igFetch, toMs, now, logActivity, fetchProfile, setSetting, isRateLimited, RATE_LIMIT_MSG } from './_lib.js';
 
 const LIST_LIMIT = 20; // Workers 무료 플랜 외부 호출 50회/요청 한도 고려
 const MSG_FIELDS = 'id,created_time,from,to,message,attachments';
@@ -20,7 +20,8 @@ async function syncConversations(env, db, account) {
   try {
     list = await igFetch(env, account, `/${myId}/conversations`, { params: { platform: 'instagram', fields: 'id,updated_time,participants', limit: LIST_LIMIT } });
   } catch (e) {
-    result.errors.push(`대화 목록: ${errText(e)}`);
+    if (isRateLimited(e)) result.rate_limited = true;
+    result.errors.push(result.rate_limited ? RATE_LIMIT_MSG : `대화 목록: ${errText(e)}`);
     return result;
   }
   result.ok = true;
@@ -33,6 +34,15 @@ async function syncConversations(env, db, account) {
     const other = participants.find((p) => String(p.id) !== myId && (!myName || p.username !== myName)) || null;
     if (!other) { result.errors.push(`대화 ${conv.id}: 상대 참가자를 찾지 못함`); continue; }
     const pid = String(other.id);
+
+    if (result.rate_limited) break;
+    // 저장된 마지막 메시지 이후 변화가 없으면 메시지 조회 생략 (호출 한도 절약)
+    const known = await db.prepare('SELECT last_message_at FROM conversations WHERE participant_id = ?').bind(pid).first();
+    const updatedAt = toMs(conv.updated_time);
+    if (known && known.last_message_at && updatedAt && updatedAt <= known.last_message_at) {
+      result.skipped = (result.skipped || 0) + 1;
+      continue;
+    }
 
     let msgs = null;
     const tryModes = mode ? [mode] : ['A', 'B', 'C'];
@@ -55,9 +65,11 @@ async function syncConversations(env, db, account) {
         mode = m;
         break;
       } catch (e) {
+        if (isRateLimited(e)) { result.rate_limited = true; break; }
         if (result.errors.length < 8) result.errors.push(`메시지(${m}) ${conv.id}: ${errText(e)}`);
       }
     }
+    if (result.rate_limited) break;
     result.mode = mode;
 
     let lastInbound = null;

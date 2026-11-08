@@ -212,10 +212,10 @@
       <div style="display:flex;flex-direction:column;width:100%;height:100%">
         <div class="topbar">
           <h2>DM</h2>
-          <select id="d-status" style="width:auto"><option value="open">진행중</option><option value="done">완료</option><option value="all">전체</option></select>
+          <select id="d-status" style="width:auto" title="처리 상태"><option value="open">상태: 진행중</option><option value="done">상태: 완료</option><option value="all">상태: 전체</option></select>
           <select id="d-filter" style="width:auto">
-            <option value="">전체</option><option value="unread">안 읽음</option><option value="window">답장 가능(24h)</option>
-            <option value="follower">팔로워</option><option value="nonfollower">비팔로워</option><option value="mine">내 담당</option>
+            <option value="">보기: 전체</option><option value="unread">보기: 안 읽음</option><option value="window">보기: 답장 가능(24h)</option>
+            <option value="follower">보기: 팔로워</option><option value="nonfollower">보기: 비팔로워</option><option value="mine">보기: 내 담당</option>
           </select>
           <button id="d-sync">동기화</button>
         </div>
@@ -598,7 +598,7 @@
       const d = await api(`conversations?${q}`); state.convs = d.conversations; renderConvs();
       if (sync) {
         const r = d.sync || {};
-        toast(`동기화 완료 · 대화 ${r.conversations ?? 0}건, 새 메시지 ${r.messages ?? 0}건${r.errors && r.errors.length ? ` · 일부 오류 ${r.errors.length}건` : ''}`, 5000);
+        toast(r.rate_limited ? '일부만 동기화됨 — 인스타 API 호출 한도 초과. 약 1시간 뒤 다시 시도하세요.' : `동기화 완료 · 변경된 대화 ${r.conversations ?? 0}건, 새 메시지 ${r.messages ?? 0}건${r.errors && r.errors.length ? ` · 일부 오류 ${r.errors.length}건` : ''}`, 6000);
         loadStatus(true);
       }
     } catch (e) { toast(e.message, 4000); }

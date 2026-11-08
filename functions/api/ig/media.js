@@ -1,5 +1,5 @@
 // 게시물 목록 (D1 캐시) / 동기화 / 게시물별 기본 자료(킷) 설정
-import { json, error, readJson, getAccount, refreshTokenIfNeeded, igFetch, toMs, now, logActivity } from './_lib.js';
+import { json, error, readJson, getAccount, refreshTokenIfNeeded, igFetch, toMs, now, logActivity, isRateLimited, RATE_LIMIT_MSG } from './_lib.js';
 
 const FIELDS = 'id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,comments_count,like_count';
 
@@ -37,6 +37,7 @@ export async function onRequestGet(context) {
         params = { fields: FIELDS, limit: 50, after: next };
       }
     } catch (e) {
+      if (isRateLimited(e)) return error(RATE_LIMIT_MSG, 429, { code: 'rate_limited' });
       return error(`게시물 동기화 실패: ${e.message}`, 502, { payload: e.payload });
     }
     await logActivity(db, context.data.session.name, 'sync_media', null, null, `${synced}건`);

@@ -1,5 +1,5 @@
 // 댓글 목록 / API 동기화 / 상태 변경
-import { json, error, readJson, getAccount, refreshTokenIfNeeded, igFetch, toMs, now, logActivity } from './_lib.js';
+import { json, error, readJson, getAccount, refreshTokenIfNeeded, igFetch, toMs, now, logActivity, isRateLimited, RATE_LIMIT_MSG } from './_lib.js';
 
 const COMMENT_FIELDS = 'id,text,timestamp,username,from{id,username},parent_id,hidden,replies{id,text,timestamp,username,from{id,username},parent_id}';
 
@@ -34,11 +34,16 @@ export async function onRequestGet(context) {
     account = await refreshTokenIfNeeded(env, db, account);
     const myId = String(account.ig_user_id);
 
-    // 대상 게시물: 지정된 1개 또는 최근 20개
+    // 대상 게시물: 지정된 1개, 또는 최근 30개 중 인스타의 댓글 수가 저장된 댓글 수보다 많은 것(최대 15개)
+    // → 바뀐 게시물만 조회해 Meta 호출 한도를 아낀다
     let targets = [];
     if (mediaId) targets = [mediaId];
     else {
-      const r = await db.prepare('SELECT id FROM media ORDER BY COALESCE(timestamp, 0) DESC LIMIT 20').all();
+      const r = await db.prepare(`
+        SELECT id FROM (SELECT id, timestamp, comments_count FROM media ORDER BY COALESCE(timestamp, 0) DESC LIMIT 30) m
+        WHERE COALESCE(m.comments_count, 0) > (SELECT COUNT(*) FROM comments c WHERE c.media_id = m.id)
+        ORDER BY COALESCE(m.timestamp, 0) DESC LIMIT 15
+      `).all();
       targets = r.results.map((x) => x.id);
     }
     let synced = 0;
@@ -55,6 +60,10 @@ export async function onRequestGet(context) {
           }
         }
       } catch (e) {
+        if (isRateLimited(e)) {
+          if (!synced) return error(RATE_LIMIT_MSG, 429, { code: 'rate_limited' });
+          break; // 일부만 받은 경우 저장된 만큼만 반영
+        }
         if (mediaId) return error(`댓글 동기화 실패: ${e.message}`, 502, { payload: e.payload });
       }
     }
