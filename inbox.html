@@ -521,7 +521,7 @@
     $('#comment-list').innerHTML = list.map((c) => {
       const hit = kw.some((k) => (c.text || '').includes(k));
       const canSend = sendable(c);
-      const pr = c.private_reply_sent_at ? `<span class="badge teal">자료 발송됨 · ${esc(c.private_reply_by || '')} ${rel(c.private_reply_sent_at)}</span>` : canSend ? `<span class="badge purple">DM 발송 가능 D-${daysLeft(c)}</span>` : `<span class="badge gray">7일 경과 (발송 불가)</span>`;
+      const pr = c.private_reply_sent_at ? `<span class="badge teal">자료 발송됨 · ${esc(c.private_reply_by || '')} ${rel(c.private_reply_sent_at)}</span>` : canSend ? `<span class="badge purple">DM 발송 가능 D-${daysLeft(c)}</span>` : `<span class="badge gray" title="인스타 규칙: 댓글 작성 후 7일 이내에만 자료 DM 가능. 공개 답글은 언제든 가능">자료 DM 기한 지남 (7일)</span>`;
       return `<div class="cmt ${c.status === 'done' ? 'done' : ''}" data-id="${esc(c.id)}">
         <div><input type="checkbox" class="sel" ${canSend ? '' : 'disabled'} ${state.selected.has(c.id) ? 'checked' : ''} style="width:auto;margin-top:4px" /></div>
         <div style="min-width:0">

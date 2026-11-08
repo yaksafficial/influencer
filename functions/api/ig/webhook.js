@@ -80,6 +80,13 @@ async function handlePayload(context, payload) {
       if (v.media && v.media.id) {
         await db.prepare('INSERT OR IGNORE INTO media (id, synced_at) VALUES (?, NULL)').bind(String(v.media.id)).run();
       }
+      // 내 계정이 단 답글이면 원 댓글을 처리 완료로
+      if (isMine && v.parent_id) {
+        await db.prepare(`
+          UPDATE comments SET status = 'done', handled_by = COALESCE(handled_by, '인스타 앱'), replied_at = COALESCE(replied_at, ?)
+          WHERE id = ? AND status = 'open'
+        `).bind(entryTime, String(v.parent_id)).run();
+      }
       await setSetting(db, 'webhook_last_comment_at', ts);
     }
 

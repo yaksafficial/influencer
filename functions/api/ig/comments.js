@@ -58,6 +58,13 @@ export async function onRequestGet(context) {
         if (mediaId) return error(`댓글 동기화 실패: ${e.message}`, 502, { payload: e.payload });
       }
     }
+    // 내 계정(인스타 앱 포함)으로 답글이 달린 댓글은 처리 완료로 표시
+    await db.prepare(`
+      UPDATE comments SET status = 'done', handled_by = COALESCE(handled_by, '인스타 앱'),
+        replied_at = COALESCE(replied_at, (SELECT MAX(r.timestamp) FROM comments r WHERE r.parent_id = comments.id AND r.is_mine = 1))
+      WHERE status = 'open' AND is_mine = 0
+        AND EXISTS (SELECT 1 FROM comments r WHERE r.parent_id = comments.id AND r.is_mine = 1)
+    `).run();
     await logActivity(db, context.data.session.name, 'sync_comments', mediaId ? 'media' : null, mediaId, `${synced}건`);
   }
 
