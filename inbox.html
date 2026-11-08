@@ -398,7 +398,7 @@
   const daysLeft = (c) => Math.max(0, Math.ceil((c.timestamp + SEVEN - Date.now()) / DAY));
 
   // ── 로그인 ──
-  function showLogin() { $('#login-view').style.display = 'flex'; $('#app').classList.remove('on'); clearInterval(state.timer); }
+  function showLogin() { $('#login-view').style.display = 'flex'; $('#app').classList.remove('on'); clearInterval(state.timer); clearInterval(state.pulseTimer); }
   function showApp() { $('#login-view').style.display = 'none'; $('#app').classList.add('on'); $('#me-name').textContent = `${state.me.name} (${state.me.role === 'owner' ? '관리자' : '직원'})`; if (state.me.role !== 'owner') { $('#s-staff-card').classList.add('hidden'); $('#s-token-card').classList.add('hidden'); } }
   $('#login-form').addEventListener('submit', async (e) => {
     e.preventDefault(); $('#login-err').textContent = '';
@@ -424,8 +424,32 @@
     else if (u.searchParams.get('connect_error')) { alert('연결 실패: ' + u.searchParams.get('connect_error')); history.replaceState(null, '', '/inbox.html'); switchView('settings'); }
     else switchView('comments');
     loadStatus(true); loadKits(true);
-    clearInterval(state.timer);
-    state.timer = setInterval(() => { if (document.hidden) return; if (state.view === 'comments') loadComments(); if (state.view === 'dm') { loadConvs(); if (state.conv) openConv(state.conv, true); } loadStatus(true); }, 60e3);
+    clearInterval(state.timer); clearInterval(state.pulseTimer);
+    // 5분마다 전체 새로고침 (혹시 놓친 변경 대비)
+    state.timer = setInterval(() => { if (document.hidden) return; refreshCurrent(); loadStatus(true); }, 5 * 60e3);
+    // 10초마다 '새로 들어온 게 있나'만 확인 → 있을 때만 목록 갱신
+    state.pulse = null;
+    state.pulseTimer = setInterval(checkPulse, 10e3);
+    checkPulse();
+  }
+
+  function refreshCurrent() {
+    if (state.view === 'comments') loadComments();
+    if (state.view === 'dm') { loadConvs(); if (state.conv) openConv(state.conv, true); }
+  }
+  async function checkPulse() {
+    if (document.hidden || !state.me) return;
+    try {
+      const p = await api('pulse');
+      const prev = state.pulse; state.pulse = p;
+      if (!prev) return; // 첫 확인은 기준값만 저장
+      const newC = p.c > prev.c, newM = p.m > prev.m;
+      if (!newC && !newM) return;
+      if (newC && state.view === 'comments') loadComments();
+      if (newM && state.view === 'dm') { loadConvs(); if (state.conv) openConv(state.conv, true); }
+      loadStatus(true);
+      toast(newC && newM ? '새 댓글과 DM이 들어왔습니다.' : newC ? '새 댓글이 들어왔습니다.' : '새 DM이 들어왔습니다.');
+    } catch (_) { /* 네트워크 일시 오류는 다음 확인에서 */ }
   }
 
   // ── 상태 ──
