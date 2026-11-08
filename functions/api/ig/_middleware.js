@@ -25,5 +25,13 @@ export async function onRequest(context) {
     return error('로그인이 필요합니다.', 401, { code: 'unauthenticated' });
   }
   context.data.session = session;
-  return context.next();
+  try {
+    return await context.next();
+  } catch (e) {
+    const msg = String((e && e.message) || e);
+    if (/limit|exceeded|too many/i.test(msg) && /d1|sql|query|rows/i.test(msg)) {
+      return error('오늘 Cloudflare 무료 사용량 한도에 도달했습니다. 매일 오전 9시(한국 시간)에 다시 풀립니다.', 503, { code: 'd1_limit', detail: msg.slice(0, 200) });
+    }
+    return error(`서버 오류: ${msg.slice(0, 200)}`, 500);
+  }
 }

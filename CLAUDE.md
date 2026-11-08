@@ -140,6 +140,14 @@ CLOUDFLARE_API_TOKEN=<토큰> wrangler pages deploy . --project-name=<your-proje
 - 프로덕션 URL은 본인 Cloudflare Pages 프로젝트명에 따라 달라집니다 (예: `https://<your-project>.pages.dev`)
 - 프로젝트명: (예: `influencer`, 본인 환경에 맞게 변경)
 
+## 인박스 운영 주의 (중요)
+- **운영 사이트는 `claude/cool-hypatia-vzy9wv` 브랜치 기준**이다. `main` 에는 인박스·Functions·deploy 워크플로가 아직 없으므로, `main` 체크아웃에서 `wrangler pages deploy` 나 `/deploy` 를 실행하면 **운영 인박스가 사라진다.** 배포는 이 브랜치에 push(자동 배포)로만 한다. main 병합 전까지 유지.
+- Meta 호출 한도(code 4 등)는 시간당. 동기화 버튼은 '바뀐 것만' 조회하고 한도 시 즉시 중단하도록 되어 있음 — 루프·자동 동기화 추가 금지.
+- Cloudflare 무료 플랜: D1 하루 읽기 500만·쓰기 10만 행(2026-09부터 초과 시 쿼리 실패, 매일 09:00 KST 초기화), 요청당 쿼리 수 제한. 대량 저장은 '바뀐 행만 쓰기'(ON CONFLICT … WHERE) + 요청당 상한(댓글 동기화 600건) 유지.
+- 화면 자동 갱신은 `/api/ig/pulse`(D1 2행) 10초 + 전체 5분. 짧은 주기로 무거운 API 를 부르지 말 것.
+- 만료/점검 일정: Cloudflare API 토큰(GitHub 시크릿 `CLOUDFLARE_API_TOKEN`) 2027-11-08 만료 → 재발급 필요. Meta 앱 '약사피셜 CS'는 연 1회 '데이터 사용 점검' 요청이 오면 개발자 대시보드에서 완료해야 앱이 제한되지 않음. Meta 토큰은 시스템 사용자 토큰(만료 없음).
+- 아직 미해결: DM 실시간 수신·고객 대상 DM 발송은 Meta 고급 액세스(앱 검수) 필요 가능성. privacy.html 의 '최대 1년 보관' 문구와 실제(자동 삭제 없음) 불일치 — 사용자가 보류 결정.
+
 ## 주의사항
 - html2canvas에서 `createPattern` 0크기 에러 방지를 위해 `CanvasRenderingContext2D.prototype.createPattern`을 monkey-patch함
 - 이미지 CORS 우회를 위해 저장 시 canvas/fetch/corsproxy.io 3단계 변환 시도, 실패 시 placeholder 픽셀 대체

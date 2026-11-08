@@ -14,6 +14,10 @@ async function upsertComment(db, c, mediaId, myId, source) {
       from_username = COALESCE(excluded.from_username, comments.from_username),
       text = excluded.text,
       timestamp = excluded.timestamp
+    WHERE comments.text IS NOT excluded.text
+       OR comments.timestamp IS NOT excluded.timestamp
+       OR (comments.media_id IS NULL AND excluded.media_id IS NOT NULL)
+       OR (comments.from_username IS NULL AND excluded.from_username IS NOT NULL)
   `).bind(String(c.id), String(mediaId), c.parent_id ? String(c.parent_id) : null, fromId || null,
     (c.from && c.from.username) || c.username || null, c.text || '', toMs(c.timestamp) || now(),
     isMine, isMine ? 'done' : 'open', source, now()).run();
@@ -38,7 +42,9 @@ export async function onRequestGet(context) {
     // 저장된 게시물 전체가 대상이라, 누를 때마다 오래된 게시물 댓글까지 점차 채워진다.
     // Meta 호출은 한 번에 최대 CALL_BUDGET 회 (게시물당 최대 3페이지 = 150개)
     const CALL_BUDGET = 36;
+    const MAX_UPSERTS = 600;
     let calls = 0;
+    let partial = false;
     let targets = [];
     if (mediaId) targets = [mediaId];
     else {
@@ -51,10 +57,10 @@ export async function onRequestGet(context) {
     }
     let synced = 0;
     for (const mid of targets) {
-      if (calls >= CALL_BUDGET) break;
+      if (calls >= CALL_BUDGET || synced >= MAX_UPSERTS) { partial = true; break; }
       try {
         let params = { fields: COMMENT_FIELDS, limit: 50 };
-        for (let page = 0; page < 3 && calls < CALL_BUDGET; page++) {
+        for (let page = 0; page < 3 && calls < CALL_BUDGET && synced < MAX_UPSERTS; page++) {
           calls++;
           const data = await igFetch(env, account, `/${mid}/comments`, { params });
           for (const c of data.data || []) {
@@ -85,7 +91,7 @@ export async function onRequestGet(context) {
       WHERE status = 'open' AND is_mine = 0
         AND EXISTS (SELECT 1 FROM comments r WHERE r.parent_id = comments.id AND r.is_mine = 1)
     `).run();
-    await logActivity(db, context.data.session.name, 'sync_comments', mediaId ? 'media' : null, mediaId, `${synced}건`);
+    await logActivity(db, context.data.session.name, 'sync_comments', mediaId ? 'media' : null, mediaId, `${synced}건${partial ? ' (일부, 다시 누르면 이어서)' : ''}`);
   }
 
   const where = ['c.is_mine = 0'];
