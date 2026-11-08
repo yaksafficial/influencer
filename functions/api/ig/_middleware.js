@@ -6,6 +6,7 @@ const PUBLIC_PATHS = new Set([
   '/api/ig/webhook',
   '/api/ig/callback',
   '/api/ig/auth/login',
+  '/api/ig/sso',
 ]);
 
 export async function onRequest(context) {

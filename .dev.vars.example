@@ -23,3 +23,5 @@ IG_WEBHOOK_VERIFY_TOKEN=change_me_random_string
 INBOX_ADMIN_PASSWORD=change_me
 # (선택) Graph API 버전. 기본 v23.0
 # IG_API_VERSION=v23.0
+# 근무앱(yaksa-work-app) 자동 로그인용 공유 비밀값. Streamlit secrets [cs] sso_secret 과 같은 값
+CS_SSO_SECRET=change_me_long_random_string

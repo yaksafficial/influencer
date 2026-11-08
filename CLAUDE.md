@@ -61,7 +61,7 @@ influencer/
 - **단일 파일 유지**: 각 페이지는 HTML 하나에 CSS + JS 포함. 외부 파일 분리 금지.
 - **빌드 없음**: 정적 호스팅. Cloudflare Pages 배포.
 - **토큰/키 하드코딩 금지**: 사용자가 UI에서 로그인 또는 직접 입력. localStorage에 저장.
-  - 예외: `inbox.html` 은 직원과 데이터를 공유해야 하므로 서버(Pages Functions + D1)를 사용. 비밀값은 Cloudflare 환경변수(`IG_APP_ID`, `IG_APP_SECRET`, `IG_WEBHOOK_VERIFY_TOKEN`, `INBOX_ADMIN_PASSWORD`)에만 둔다.
+  - 예외: `inbox.html` 은 직원과 데이터를 공유해야 하므로 서버(Pages Functions + D1)를 사용. 비밀값은 Cloudflare 환경변수(`IG_APP_SECRET`, `IG_WEBHOOK_VERIFY_TOKEN`, `INBOX_ADMIN_PASSWORD`, `CS_SSO_SECRET`)에만 둔다.
 - **CSS 변수 사용**: 테마 색상은 `--accent` (RGB), `--accent-hex` (HEX) 변수 사용.
 - **pseudo-element 사용 금지**: html2canvas 호환성 문제로 실제 DOM 요소 사용 (`.calendar-bg`, `.week-line`, `.date-circle`).
 
@@ -105,6 +105,7 @@ influencer/
 - 로그인: `owner`(환경변수 비밀번호) + 직원 계정(D1, PBKDF2). 세션 쿠키 14일. 모든 행동은 activity_log 에 기록
 - 계정 연결: **신규 Meta 앱은 통합 로그인(Unified login)만 지원**. 대시보드 '2. 액세스 토큰 생성'에서 받은 토큰을 inbox 설정 › [토큰으로 연결]에 붙여넣음 (`functions/api/ig/token.js`). 토큰 접두어로 호스트 판별: `EAA…` → graph.facebook.com(`api_host='facebook'`, 만료 없음), `IGAA…` → graph.instagram.com(구 Instagram 로그인, 60일·자동 갱신)
 - 모든 IG 호출은 `/{ig_user_id}/...` 경로 + `igFetch(env, account, …)` 로 호스트 자동 선택. `IG_APP_SECRET` 은 Meta 앱 시크릿(웹훅 서명 검증)
+- 근무앱 자동 로그인: `GET /api/ig/sso?u=이름&ts=초&sig=HMAC-SHA256(CS_SSO_SECRET, "이름.초")` (유효 10분) → 세션 생성 후 /inbox.html. 기본 권한 명훈약사=owner, 지우약사=staff (`CS_SSO_USERS` 로 변경). 근무앱(yaksa-work-app) `lib/sso.py` 가 같은 방식으로 서명
 - D1 적용: `wrangler d1 execute influencer-inbox --remote --file=db/schema.sql`
 
 ### dashboard.html (공구 매출 대시보드)

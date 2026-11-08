@@ -413,6 +413,7 @@
     chk(s.env.app_secret_set, '환경변수 IG_APP_SECRET (Meta 앱 시크릿 코드 — 웹훅 서명 확인용)', s.env.app_secret_set ? '설정됨' : '설정 필요 — Meta 앱 › 앱 설정 › 기본 설정 › 앱 시크릿 코드');
     chk(s.webhook.verify_token_set, '환경변수 IG_WEBHOOK_VERIFY_TOKEN', s.webhook.verify_token_set ? '설정됨' : '설정 필요');
     chk(s.env.admin_password_set, '환경변수 INBOX_ADMIN_PASSWORD', '');
+    chk(s.env.sso_secret_set ? true : null, '근무앱 자동 로그인 (CS_SSO_SECRET)', s.env.sso_secret_set ? '설정됨' : '미설정 — 근무앱에서 자동 로그인을 쓰려면 필요');
     chk(s.connected, 'Instagram 계정 연결', '');
     if (s.connected) {
       chk(s.checks.api && s.checks.api.ok, 'Instagram API 응답', s.checks.api && s.checks.api.ok ? `@${esc(s.checks.api.username)}` : esc(s.checks.api && s.checks.api.error));
@@ -660,14 +661,18 @@
   async function loadLog() {
     try {
       const d = await api('log?limit=200');
-      const names = { login: '로그인', connect_instagram: 'Instagram 연결', disconnect_instagram: 'Instagram 연결 해제', sync_media: '게시물 동기화', sync_comments: '댓글 동기화', sync_conversations: 'DM 동기화', comment_reply: '댓글 답글', comment_done: '댓글 완료', comment_reopen: '댓글 미처리', comment_hide: '댓글 숨김', private_reply: '자료 DM 발송', dm_send: 'DM 전송', conversation_update: '대화 상태 변경', kit_create: '자료 생성', kit_update: '자료 수정', kit_delete: '자료 삭제', staff_upsert: '직원 등록', staff_enable: '직원 활성화', staff_disable: '직원 비활성화', set_media_kit: '게시물 자료 지정' };
+      const names = { login: '로그인', login_sso: '근무앱 자동 로그인', connect_instagram: 'Instagram 연결', disconnect_instagram: 'Instagram 연결 해제', sync_media: '게시물 동기화', sync_comments: '댓글 동기화', sync_conversations: 'DM 동기화', comment_reply: '댓글 답글', comment_done: '댓글 완료', comment_reopen: '댓글 미처리', comment_hide: '댓글 숨김', private_reply: '자료 DM 발송', dm_send: 'DM 전송', conversation_update: '대화 상태 변경', kit_create: '자료 생성', kit_update: '자료 수정', kit_delete: '자료 삭제', staff_upsert: '직원 등록', staff_enable: '직원 활성화', staff_disable: '직원 비활성화', set_media_kit: '게시물 자료 지정' };
       $('#log-list').innerHTML = d.log.length ? `<table><tr><th>시각</th><th>누가</th><th>무엇을</th><th>내용</th></tr>${d.log.map((l) => `<tr><td class="muted">${fmt(l.created_at)}</td><td>${esc(l.staff_name || '')}</td><td>${esc(names[l.action] || l.action)}</td><td class="muted">${esc(l.target_id || '')} ${esc(l.detail || '')}</td></tr>`).join('')}</table>` : '<p class="muted">기록이 없습니다.</p>';
     } catch (e) { toast(e.message); }
   }
 
   // ── 시작 ──
   (async () => {
-    try { state.me = await api('auth/me'); showApp(); boot(); } catch (_) { showLogin(); }
+    const qs = new URL(location.href).searchParams;
+    const ssoErr = qs.get('sso_error');
+    if (ssoErr) history.replaceState(null, '', location.pathname);
+    try { state.me = await api('auth/me'); showApp(); boot(); }
+    catch (_) { showLogin(); if (ssoErr) $('#login-err').textContent = ssoErr; }
   })();
 })();
 </script>

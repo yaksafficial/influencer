@@ -23,6 +23,7 @@ export async function onRequestGet(context) {
       login_url_set: !!env.IG_LOGIN_URL,
       app_secret_set: !!env.IG_APP_SECRET,
       admin_password_set: !!env.INBOX_ADMIN_PASSWORD,
+      sso_secret_set: !!env.CS_SSO_SECRET,
     },
     counts: {},
     granted_permissions: JSON.parse((await getSetting(db, 'granted_permissions')) || '[]'),
